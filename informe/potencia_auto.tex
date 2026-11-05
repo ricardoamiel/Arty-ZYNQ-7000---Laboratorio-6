@@ -1,0 +1,24 @@
+\begin{table}[H]\centering\caption{Resumen de potencia estimada por Vivado (report\_power).}\label{tab:pot_resumen}
+\begin{tabular}{lccc}\toprule
+Parámetro & LED (PS + PL) & FFT (xFFT + DMA) & FIR (4 filtros + DMA)\\\midrule
+Potencia total en chip (W) & 1.401 & 1.532 & 1.498\\
+Potencia dinámica (W) & 1.263 & 1.393 & 1.358\\
+Potencia estática (W) & 0.137 & 0.139 & 0.141\\
+Temperatura de unión (°C) & 41.2 & 42.7 & 42.3\\
+\bottomrule\end{tabular}\end{table}
+\begin{table}[H]\centering\caption{Potencia dinámica por componente (W).}\label{tab:pot_comp}
+\begin{tabular}{lccc}\toprule
+Componente & LED (PS + PL) & FFT (xFFT + DMA) & FIR (4 filtros + DMA)\\\midrule
+Clocks & 0.003 & 0.042 & 0.038\\
+Slice Logic & <0.001 & 0.021 & 0.006\\
+Signals & 0.001 & 0.026 & 0.010\\
+Block RAM & 0 & 0.021 & 0.003\\
+DSPs & 0 & 0.018 & 0.034\\
+I/O & 0.002 & 0 & <0.001\\
+PS7 (procesador) & 1.256 & 1.266 & 1.266\\
+\bottomrule\end{tabular}\end{table}
+\begin{table}[H]\centering\caption{Potencia dinámica atribuible solo a la lógica programable (dinámica total menos PS7).}\label{tab:pot_pl}
+\begin{tabular}{lccc}\toprule
+ & LED (PS + PL) & FFT (xFFT + DMA) & FIR (4 filtros + DMA)\\\midrule
+PL dinámica (W) & 0.007 & 0.127 & 0.092\\
+\bottomrule\end{tabular}\end{table}

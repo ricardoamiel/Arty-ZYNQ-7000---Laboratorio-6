@@ -1,0 +1,267 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath,booktabs,graphicx,float,xcolor,listings,tikz,hyperref,caption}
+\usetikzlibrary{positioning,arrows.meta,fit}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\captionsetup{font=small,labelfont=bf}
+\hypersetup{colorlinks,linkcolor=black,urlcolor=blue!50!black,citecolor=black}
+
+% Marca visible para lo que falta completar con resultados reales
+\newcommand{\pendiente}[1]{\textbf{\color{red!70!black}[Pendiente: #1]}}
+% Inserta una figura solo si ya existe (las figuras se generan con sim_todo.sh)
+\newcommand{\figura}[3]{%
+  \IfFileExists{#1}{\begin{figure}[H]\centering\includegraphics[width=#2\linewidth]{#1}\caption{#3}\end{figure}}%
+  {\pendiente{figura \detokenize{#1}}}}
+
+\lstset{basicstyle=\ttfamily\footnotesize,frame=single,breaklines=true,columns=fullflexible,
+        keywordstyle=\bfseries,commentstyle=\color{gray},showstringspaces=false}
+
+\title{\textbf{Laboratorio 6: LED con PS y PL, simulación de FFT y filtro FIR\\y consumo de potencia en la Arty Z7-20}}
+% Autores: informe_grupal.tex redefine este comando antes de cargar este archivo
+\providecommand{\autores}{Alumno: Ricardo Amiel Acuña Villogas}
+\author{\autores}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Se implementó en la Arty Z7-20 un sistema que enciende LEDs desde la lógica programable (PL) y desde el procesador ARM (PS), se simularon los núcleos xFFT y FIR Compiler de AMD y se estimó el consumo de potencia de los tres diseños con Vivado 2025.2. El diseño del LED funcionó en la placa: dos LEDs responden al programa en C y dos a la lógica de la FPGA, con un uso menor al 1 \% de los recursos. La FFT de 1024 puntos ubicó el tono de 1 MHz en el índice 10 y la transformada inversa reconstruyó la entrada con una similitud de 0.99999. La potencia total estimada fue de 1.401 W para el LED, 1.532 W para la FFT y 1.498 W para el FIR; en los tres casos el PS7 consume cerca de 1.26 W, por lo que el costo propio de la lógica de procesamiento es de solo 7, 127 y 92 mW respectivamente.
+\end{abstract}
+
+\section{Introducción}
+La Arty Z7-20 usa el SoC Zynq-7000 XC7Z020, que integra en un mismo chip un sistema de procesamiento (PS) con dos núcleos ARM Cortex A9 y una lógica programable (PL) equivalente a una FPGA Artix 7. El PS ejecuta software en C y la PL implementa hardware dedicado; ambos se comunican por los buses AXI. Esta división permite repartir una tarea de procesamiento de señales: la PL ejecuta en paralelo las operaciones costosas, como la FFT o un filtro FIR, y el PS controla, configura y almacena los resultados.
+
+El arranque del Zynq sigue dos etapas. Primero la BootROM carga el FSBL, que configura el PS y programa el bitstream en la PL. Luego se ejecuta la aplicación, ya sea un programa standalone en C o un sistema Linux mediante U Boot. En este laboratorio se usa la ruta standalone, programada por JTAG, que es suficiente para controlar periféricos y probar núcleos de procesamiento sin un sistema operativo.
+
+\section{Objetivos}
+\begin{enumerate}
+  \item Diseñar un sistema que encienda LEDs desde la FPGA (PL) y desde el procesador (PS) de la Arty Z7-20.
+  \item Simular los núcleos de propiedad intelectual xFFT y FIR Compiler de AMD y verificar su respuesta.
+  \item Estimar y analizar el consumo de potencia de los diseños implementados.
+\end{enumerate}
+
+\section{Materiales y herramientas}
+\begin{itemize}
+  \item Placa Digilent Arty Z7-20 (XC7Z020CLG400-1), cable micro USB y jumper JP4 en modo JTAG.
+  \item Vivado ML Standard 2025.2 y Vitis Embedded Development 2025.2 en Ubuntu 24.04, con instalación mínima: solo la familia Zynq-7000 (descarga de 23 GB frente a los 163 GB de una instalación completa).
+  \item Archivos de placa de Digilent (vivado-boards) para la Arty Z7-20.
+  \item Python 3.12 con NumPy y Matplotlib para el posprocesamiento de la simulación.
+\end{itemize}
+
+\section{Parte 1: encendido de LEDs con la FPGA y el procesador}
+\subsection{Arquitectura}
+El diseño de bloques contiene el PS7 configurado con el preajuste de la placa, un AXI GPIO de 2 bits conectado al puerto maestro M\_AXI\_GP0 y un módulo RTL propio. La Figura \ref{fig:arq_led} resume las conexiones.
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}[font=\small, node distance=8mm and 12mm,
+  b/.style={draw, rounded corners, minimum height=10mm, minimum width=26mm, align=center},
+  a/.style={-{Latex[length=2mm]}, thick}]
+  \node[b, fill=blue!8] (ps) {PS7\\ARM Cortex A9\\led\_main.c};
+  \node[b, right=of ps] (ic) {AXI\\Interconnect};
+  \node[b, right=of ic, fill=green!8] (gpio) {AXI GPIO\\2 bits};
+  \node[b, below=of ic, fill=orange!10] (blink) {pl\_blink.v\\contador 1 Hz};
+  \node[right=of gpio, align=left] (l01) {LD0 (R14)\\LD1 (P14)};
+  \node[right=of blink, align=left] (l23) {LD2 (N16)\\LD3 (M14)};
+  \node[below=6mm of blink] (sw) {SW0 (M20)};
+  \draw[a] (ps) -- node[above]{GP0} (ic);
+  \draw[a] (ic) -- (gpio);
+  \draw[a] (gpio) -- (l01);
+  \draw[a] (ps.south) |- node[pos=0.25,left]{FCLK0 100 MHz} (blink.west);
+  \draw[a] (sw) -- (blink);
+  \draw[a] (blink) -- (l23);
+  \node[draw, dashed, fit=(gpio)(blink)(ic), inner sep=4mm, label={[anchor=north east]north east:PL}] {};
+\end{tikzpicture}
+\caption{Arquitectura del diseño: LD0 y LD1 los controla el procesador; LD2 y LD3 los controla solo la lógica programable.}
+\label{fig:arq_led}
+\end{figure}
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.95\linewidth]{figuras/block_design.png}
+\caption{Diseño de bloques generado en Vivado 2025.2: PS7, AXI Interconnect, AXI GPIO (gpio\_ps), reinicio del procesador (rst\_ps7\_100M) y el módulo RTL pl\_blink\_0.}
+\label{fig:bd}
+\end{figure}
+
+\subsection{Lógica programable (PL)}
+El módulo pl\_blink divide el reloj FCLK0 de 100 MHz con un contador de 32 bits; cada 50 millones de ciclos invierte la salida, de modo que LD2 parpadea a 1 Hz sin intervención del procesador. LD3 copia directamente el estado del switch SW0.
+
+\lstinputlisting[language=Verilog,caption={Módulo pl\_blink.v}]{../LED/hdl/pl_blink.v}
+
+\subsection{Sistema de procesamiento (PS)}
+El programa standalone inicializa el AXI GPIO y escribe cada 500 ms un patrón de dos bits: LD0 cambia en cada iteración y LD1 cada dos, lo que forma un contador binario visible. Cada iteración se reporta por la UART a 115200 baudios.
+
+\lstinputlisting[language=C,caption={Programa led\_main.c}]{../LED/src/led_main.c}
+
+\subsection{Flujo de implementación}
+\begin{enumerate}
+  \item Vivado crea el diseño de bloques, sintetiza, implementa y genera el bitstream y el archivo de plataforma sys\_wrapper.xsa (script led\_hw.tcl).
+  \item Vitis crea la plataforma standalone a partir del .xsa y compila la aplicación (create\_vitis\_led.py).
+  \item XSDB programa el bitstream, inicializa el PS con ps7\_init y descarga el ejecutable al Cortex A9 (program.tcl).
+\end{enumerate}
+
+Los tres pasos se ejecutaron por terminal con run\_led.sh (hw, sw y prog). Las Figuras \ref{fig:vivado}, \ref{fig:vitis} y \ref{fig:prog} muestran el resultado en cada herramienta.
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.95\linewidth]{figuras/vivado_resumen.png}
+\caption{Resumen del proyecto en Vivado: placa Arty Z7-20, síntesis e implementación completas y bitstream generado.}
+\label{fig:vivado}
+\end{figure}
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.95\linewidth]{figuras/vitis_ide.png}
+\caption{Vitis Unified IDE 2025.2 con la plataforma artyZ720\_led y la aplicación app\_led compiladas.}
+\label{fig:vitis}
+\end{figure}
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.8\linewidth]{figuras/terminal_prog.png}
+\caption{Compilación de la aplicación y programación de la placa por JTAG con xsdb y hw\_server 2025.2.}
+\label{fig:prog}
+\end{figure}
+
+\subsection{Resultados}
+\begin{figure}[H]\centering
+\includegraphics[width=0.5\linewidth]{figuras/arty_funcionando.jpeg}
+\caption{Arty Z7-20 ejecutando el diseño. LD0 encendido por el procesador, LD2 encendido por el contador de la PL, LD3 apagado con SW0 abajo, LD12 (DONE) indica la FPGA configurada y el LED TX muestra la transmisión por la UART.}
+\label{fig:arty}
+\end{figure}
+
+La consola serial (115200 baudios) muestra la secuencia que escribe el procesador, que coincide con lo observado en LD1 y LD0 (Figura \ref{fig:uart}).
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.75\linewidth]{figuras/consola_uart.png}
+\caption{Salida de la UART: el procesador recorre el contador de dos bits 00, 01, 10, 11 cada 500 ms.}
+\label{fig:uart}
+\end{figure}
+
+El video de la placa en funcionamiento (\href{https://drive.google.com/file/d/15j47dAb3DASq5ieea0aM342emI3dTVuM/view?usp=sharing}{enlace al video}; carpeta con todo el material: \href{https://drive.google.com/drive/folders/1psmLtL21YHwi7eiOAoLBj23YtwVGnrsq?usp=sharing}{carpeta en Drive}) muestra el parpadeo de LD2 a 1 Hz independiente del contador del procesador y la respuesta de LD3 al switch SW0.
+
+\begin{table}[H]\centering
+\caption{Recursos y tiempos del diseño del LED (Vivado, implementación).}
+\label{tab:recursos_led}
+\begin{tabular}{lcc}\toprule
+Recurso & Usado & Disponible en XC7Z020\\\midrule
+LUT & 433 & 53200\\
+Flip flops & 572 & 106400\\
+BRAM & 0 & 140\\
+DSP & 0 & 220\\\midrule
+WNS (holgura de setup) & \multicolumn{2}{c}{3.249 ns}\\
+WHS (holgura de hold) & \multicolumn{2}{c}{0.060 ns}\\\bottomrule
+\end{tabular}
+\end{table}
+El diseño usa menos del 1 \% de la lógica disponible y cumple las restricciones de tiempo a 100 MHz, ya que ambas holguras son positivas. La mayor parte de las LUT y flip flops corresponden al AXI Interconnect y al AXI GPIO; el contador de pl\_blink solo requiere 33 registros.
+
+\section{Parte 2: simulación de la FFT y del filtro FIR}
+\subsection{Configuración de los núcleos}
+\begin{table}[H]\centering
+\caption{Parámetros principales de los núcleos simulados (dsp\_sim.tcl).}
+\begin{tabular}{lll}\toprule
+Núcleo & Parámetro & Valor\\\midrule
+xFFT 9.1 & Longitud máxima / usada & 2048 / 1024 puntos (configurable en ejecución)\\
+ & Arquitectura & Pipelined streaming I/O\\
+ & Datos de entrada / factores de fase & 16 bits / 24 bits\\
+ & Orden de salida & Natural\\
+ & Reloj & 100 MHz\\\midrule
+FIR Compiler 7.2 & Pasabanda & Coeficientes BPF.coe, 16 bits\\
+ & Hilbert & Coeficientes hilbert\_0.coe\\
+ & Decimador & Factor 4, LPF\_dec.coe\\
+ & Interpolador & Factor 4, LPF\_int.coe\\
+ & Arquitectura & Systolic multiply accumulate\\\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Estímulos}
+Para la FFT el testbench genera un tono complejo de 1 MHz muestreado a 100 MHz en un bloque de 1024 muestras; el resultado de la transformada directa entra a una segunda instancia configurada como transformada inversa. Para el FIR se inyectan 1024 muestras de ruido aleatorio, cuyo espectro plano permite observar la respuesta en frecuencia de cada filtro.
+
+Con $f_s = 100$ MHz y $N = 1024$, la resolución en frecuencia es
+\[
+\Delta f = \frac{f_s}{N} = \frac{100\ \text{MHz}}{1024} \approx 97.66\ \text{kHz},
+\]
+por lo que el tono de 1 MHz debe aparecer cerca del índice $k = 1\ \text{MHz}/\Delta f \approx 10.24$.
+
+\subsection{Resultados de la FFT}
+\figura{../DSP/resultados/xfft_1.pdf}{0.95}{Entrada, salida de la FFT directa y salida de la FFT inversa del núcleo xFFT.}
+La salida directa concentra la energía en el índice $k = 10$, que corresponde a $10 \cdot 97.66 \approx 976.6$ kHz, el bin más cercano a 1 MHz. Como el tono cae en $k = 10.24$ y no en un entero, parte de la energía se reparte en los bins vecinos $k = 11$ y $k = 9$ (magnitudes de 2869 y 1755 frente a 9076 en el pico); esta es la fuga espectral propia de una ventana rectangular. El núcleo escala la salida por $1/1024$ para evitar desbordes en sus 16 bits: la relación entre el pico del hardware y el de numpy.fft es 0.00098, es decir, exactamente $1/N$.
+
+La transformada inversa recupera la señal original: su amplitud máxima es 10054 frente a 10000 en la entrada y la similitud normalizada entre ambas señales es 0.99999. La pequeña diferencia proviene del redondeo en aritmética de punto fijo dentro de las dos transformadas.
+
+\begin{table}[H]\centering
+\caption{Verificación numérica de la FFT (datos de la simulación frente a numpy).}
+\begin{tabular}{lc}\toprule
+Magnitud & Valor\\\midrule
+Índice del pico (hardware y numpy) & 10\\
+Bins vecinos con fuga & 11 y 9\\
+Escala del hardware respecto a numpy & 0.00098 $\approx 1/1024$\\
+Similitud entrada frente a IFFT & 0.99999\\\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Resultados del filtro FIR}
+\figura{../DSP/resultados/fir_compiler_1.pdf}{0.8}{Señal de entrada (ruido) al FIR Compiler.}
+\figura{../DSP/resultados/fir_compiler_2.pdf}{0.8}{Salida del filtro pasabanda.}
+\figura{../DSP/resultados/fir_compiler_3.pdf}{0.8}{Salida del interpolador.}
+\figura{../DSP/resultados/fir_compiler_4.pdf}{0.8}{Salida del decimador.}
+\figura{../DSP/resultados/fir_compiler_5.pdf}{0.8}{Salida del transformador de Hilbert (parte real e imaginaria).}
+\begin{itemize}
+  \item Entrada: el ruido aleatorio tiene un espectro aproximadamente plano entre 0 y 50 MHz, por lo que sirve para observar la respuesta de cada filtro.
+  \item Pasabanda: conserva la banda centrada en 10 MHz; el 90 \% de la energía de salida queda entre 6.9 y 13.1 MHz, y fuera de ella la atenuación es de unos 40 a 50 dB.
+  \item Interpolador por 4: el filtro paso bajo elimina las imágenes espectrales que aparecen al insertar ceros; la salida conserva la banda baja hasta unos 10 MHz y atenúa el resto en más de 40 dB.
+  \item Decimador por 4: filtra antes de submuestrear y la salida queda a 25 MHz con 256 muestras (1024 entre 4); su espectro ocupa de 0 a 12.5 MHz sin componentes plegadas visibles.
+  \item Hilbert: entrega una parte real y una imaginaria desfasadas 90 grados para formar la señal analítica. Con ruido real a la entrada la supresión de frecuencias negativas medida es de solo 4.9 dB, porque el filtro solo actúa dentro de su banda de paso; con una señal de banda angosta el efecto sería más marcado.
+\end{itemize}
+
+\section{Parte 3: consumo de potencia}
+\subsection{Metodología}
+La potencia se estimó con report\_power de Vivado sobre cada diseño implementado, con las condiciones por defecto (temperatura ambiente de 25 °C y actividad de conmutación vectorless de 12.5 \%). La potencia total se divide en estática, debida a las corrientes de fuga del chip, y dinámica, proporcional a la frecuencia y a la actividad:
+\[
+P_{din} = \alpha \, C \, V^2 f ,
+\]
+donde $\alpha$ es el factor de actividad, $C$ la capacitancia conmutada, $V$ la tensión de alimentación y $f$ la frecuencia de reloj.
+
+\subsection{Resultados}
+\begin{table}[H]\centering
+\caption{Recursos usados por cada diseño implementado (XC7Z020).}
+\label{tab:recursos}
+\begin{tabular}{lccc}\toprule
+Recurso & LED & FFT & FIR\\\midrule
+LUT (de 53200) & 433 (0.8 \%) & 7660 (14.4 \%) & 6265 (11.8 \%)\\
+Flip flops (de 106400) & 572 (0.5 \%) & 11736 (11.0 \%) & 11474 (10.8 \%)\\
+BRAM (de 140) & 0 & 17 (12.1 \%) & 8.5 (6.1 \%)\\
+DSP (de 220) & 0 & 20 (9.1 \%) & 57 (25.9 \%)\\\bottomrule
+\end{tabular}
+\end{table}
+\input{potencia_auto.tex}
+
+\subsection{Análisis}
+\begin{enumerate}
+  \item El PS7 domina el consumo. En los tres diseños el procesador aporta entre 1.256 y 1.266 W, más del 90 \% de la potencia total. Esa cifra incluye los dos núcleos Cortex A9, la memoria DDR3 y los periféricos fijos, y se mantiene casi igual porque la configuración del PS es la misma en todos los casos.
+  \item La lógica del LED es casi gratuita. El contador y el AXI GPIO agregan solo 7 mW de potencia dinámica; la potencia estática de 0.137 W existe aunque la lógica no conmute.
+  \item La FFT es el diseño de PL más costoso (127 mW). Necesita 17 bloques BRAM para guardar los datos y los factores de fase de 2048 puntos, y su reloj llega a muchos más registros; por eso Clocks, Signals y Block RAM superan a los del FIR.
+  \item El FIR usa más DSP pero consume menos (92 mW). Sus cuatro filtros ocupan 57 DSP (26 \% del chip) en estructura sistólica, y los DSP son bloques de multiplicación dedicados más eficientes que la lógica general; además necesita la mitad de BRAM que la FFT.
+  \item La temperatura de unión se mantiene entre 41 y 43 °C, muy por debajo del límite, con un margen de temperatura ambiente cercano a 68 °C.
+  \item Los diseños de la FFT y del FIR incluyen el DMA y un System ILA para depuración por JTAG; el ILA usa BRAM y lógica que no serían necesarias en un diseño final, así que su consumo real sería algo menor.
+\end{enumerate}
+
+Para reducir el consumo se puede: bajar la frecuencia de FCLK0 o de los procesadores cuando la tarea lo permita, ya que la potencia dinámica es proporcional a $f$; deshabilitar los periféricos del PS que no se usan (USB, Ethernet, SD); retirar el ILA de la versión final; y reducir el ancho de los datos o la longitud máxima de la FFT a lo estrictamente necesario, lo que disminuye BRAM, DSP y capacitancia conmutada. Las cifras son estimaciones vectorless con actividad por defecto, con nivel de confianza alto en la implementación pero no medidas en la placa.
+
+\section{Conclusiones}
+\begin{enumerate}
+  \item El Zynq permite controlar el mismo tipo de periférico desde dos dominios: los LEDs de la PL funcionan sin software y con tiempo exacto, mientras que los del PS se controlan con un programa en C a través del bus AXI; ambos convivieron en la placa sin interferencia.
+  \item Los núcleos xFFT y FIR Compiler responden según lo esperado: la FFT ubica el tono en el bin correcto, muestra la fuga espectral prevista para un tono fuera de bin y la IFFT reconstruye la señal; cada filtro FIR moldea el espectro del ruido según su tipo.
+  \item El consumo está dominado por el procesador (cerca de 1.26 W); la lógica de procesamiento añade entre 7 y 127 mW según el diseño, por lo que mover cálculos intensivos a la PL tiene un costo energético bajo frente al del PS.
+  \item La instalación mínima de Vivado y Vitis 2025.2, limitada a la familia Zynq 7000, fue suficiente para todo el laboratorio y redujo la descarga de 163 GB a 23 GB.
+\end{enumerate}
+
+\begin{thebibliography}{9}
+\bibitem{zynq} AMD, Zynq 7000 SoC Technical Reference Manual (UG585).
+\bibitem{xfft} AMD, Fast Fourier Transform LogiCORE IP Product Guide (PG109).
+\bibitem{fir} AMD, FIR Compiler LogiCORE IP Product Guide (PG149).
+\bibitem{power} AMD, Vivado Design Suite User Guide: Power Analysis and Optimization (UG907).
+\bibitem{arty} Digilent, Arty Z7 Reference Manual.
+\end{thebibliography}
+
+\end{document}
