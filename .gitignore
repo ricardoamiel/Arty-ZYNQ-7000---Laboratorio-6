@@ -1,0 +1,33 @@
+# Salidas generadas por Vivado, Vitis y xsim (se regeneran con los scripts)
+build/
+**/build/
+.Xil/
+*.jou
+*.log
+*.str
+vivado_pid*.zip
+.ipcache/
+NA/
+
+# LaTeX auxiliares
+*.aux
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# Python
+__pycache__/
+*.pyc
+
+# Archivos pesados o duplicados: el video está en Drive y los zips son copias de transferencia
+*.mp4
+*.zip
+resultados_lab6/
+
+# Instalación local (solo se versiona la configuración mínima)
+instalacion/*.log
+
+# Notas personales de trabajo
+prompt-L6-grupal.txt
