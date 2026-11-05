@@ -33,6 +33,13 @@
 Se implementó en la Arty Z7-20 un sistema que enciende LEDs desde la lógica programable (PL) y desde el procesador ARM (PS), se simularon los núcleos xFFT y FIR Compiler de AMD y se estimó el consumo de potencia de los tres diseños con Vivado 2025.2. El diseño del LED funcionó en la placa: dos LEDs responden al programa en C y dos a la lógica de la FPGA, con un uso menor al 1 \% de los recursos. La FFT de 1024 puntos ubicó el tono de 1 MHz en el índice 10 y la transformada inversa reconstruyó la entrada con una similitud de 0.99999. La potencia total estimada fue de 1.401 W para el LED, 1.532 W para la FFT y 1.498 W para el FIR; en los tres casos el PS7 consume cerca de 1.26 W, por lo que el costo propio de la lógica de procesamiento es de solo 7, 127 y 92 mW respectivamente.
 \end{abstract}
 
+\section*{Material complementario}
+\begin{itemize}
+  \item Repositorio con el código, los scripts y este informe: \url{https://github.com/ricardoamiel/Arty-ZYNQ-7000---Laboratorio-6}
+  \item Video de la placa en funcionamiento: \href{https://drive.google.com/file/d/15j47dAb3DASq5ieea0aM342emI3dTVuM/view?usp=sharing}{ver video en Drive}
+  \item Carpeta con todo el material del laboratorio: \href{https://drive.google.com/drive/folders/1psmLtL21YHwi7eiOAoLBj23YtwVGnrsq?usp=sharing}{carpeta en Drive}
+\end{itemize}
+
 \section{Introducción}
 La Arty Z7-20 usa el SoC Zynq-7000 XC7Z020, que integra en un mismo chip un sistema de procesamiento (PS) con dos núcleos ARM Cortex A9 y una lógica programable (PL) equivalente a una FPGA Artix 7. El PS ejecuta software en C y la PL implementa hardware dedicado; ambos se comunican por los buses AXI. Esta división permite repartir una tarea de procesamiento de señales: la PL ejecuta en paralelo las operaciones costosas, como la FFT o un filtro FIR, y el PS controla, configura y almacena los resultados.
 
@@ -138,7 +145,7 @@ La consola serial (115200 baudios) muestra la secuencia que escribe el procesado
 \label{fig:uart}
 \end{figure}
 
-El video de la placa en funcionamiento (\href{https://drive.google.com/file/d/15j47dAb3DASq5ieea0aM342emI3dTVuM/view?usp=sharing}{enlace al video}; carpeta con todo el material: \href{https://drive.google.com/drive/folders/1psmLtL21YHwi7eiOAoLBj23YtwVGnrsq?usp=sharing}{carpeta en Drive}) muestra el parpadeo de LD2 a 1 Hz independiente del contador del procesador y la respuesta de LD3 al switch SW0.
+El video de la placa en funcionamiento (ver enlaces en Material complementario) muestra el parpadeo de LD2 a 1 Hz independiente del contador del procesador y la respuesta de LD3 al switch SW0.
 
 \begin{table}[H]\centering
 \caption{Recursos y tiempos del diseño del LED (Vivado, implementación).}

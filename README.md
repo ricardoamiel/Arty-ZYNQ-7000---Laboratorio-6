@@ -8,8 +8,37 @@ Curso de Señales Biológicas, semana 13. Herramientas: Vivado y Vitis 2025.2 so
 
 | Recurso | Enlace |
 |---|---|
+| Repositorio | [Arty-ZYNQ-7000---Laboratorio-6](https://github.com/ricardoamiel/Arty-ZYNQ-7000---Laboratorio-6) |
 | Video de la placa funcionando | [Ver en Drive](https://drive.google.com/file/d/15j47dAb3DASq5ieea0aM342emI3dTVuM/view?usp=sharing) |
 | Carpeta con todo el material | [Carpeta en Drive](https://drive.google.com/drive/folders/1psmLtL21YHwi7eiOAoLBj23YtwVGnrsq?usp=sharing) |
+
+## Capturas
+
+**Arty Z7-20 en funcionamiento:** LD0 encendido por el procesador, LD2 por el contador de la FPGA y LD12 (DONE) con la FPGA configurada.
+
+<img src="evidencias/arty_funcionando.jpeg" width="380">
+
+**Diseño de bloques en Vivado 2025.2:** PS7, AXI GPIO hacia los LEDs del procesador y el módulo RTL pl_blink hacia los LEDs de la FPGA.
+
+![Block Design](evidencias/vivado_block_design.png)
+
+**Proyecto implementado en Vivado:** síntesis, implementación y bitstream completos; 433 LUT, 572 FF y 1.401 W estimados.
+
+![Resumen de Vivado](evidencias/vivado_resumen_proyecto.png)
+
+**Vitis Unified IDE 2025.2:** plataforma standalone y aplicación app_led compiladas.
+
+![Vitis](evidencias/vitis_ide_app_led.png)
+
+**Programación por JTAG y salida de la UART:** el procesador recorre el contador de dos bits cada 500 ms.
+
+| Programación | Consola serial |
+|---|---|
+| ![Programación](evidencias/terminal_compilacion_y_programacion.png) | ![UART](evidencias/consola_uart_contador.png) |
+
+**Simulación de la FFT:** entrada, salida directa e inversa del núcleo xFFT (pico en k = 10 para un tono de 1 MHz).
+
+![FFT](DSP/resultados/xfft_1.svg)
 
 ## Qué se hizo
 
