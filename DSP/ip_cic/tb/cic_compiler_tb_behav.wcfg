@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="cic_compiler_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="cic_compiler_tb" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000000 us"></ZoomStartTime>
+      <ZoomEndTime time="22.855001 us"></ZoomEndTime>
+      <Cursor1Time time="7.985000 us"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="276"></NameColumnWidth>
+      <ValueColumnWidth column_width="112"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="12" />
+   <wvobject type="logic" fp_name="/cic_compiler_tb/aresetn">
+      <obj_property name="ElementShortName">aresetn</obj_property>
+      <obj_property name="ObjectShortName">aresetn</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/cic_compiler_tb/aclk">
+      <obj_property name="ElementShortName">aclk</obj_property>
+      <obj_property name="ObjectShortName">aclk</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/cic_compiler_tb/m_axis_inter_tdata">
+      <obj_property name="ElementShortName">m_axis_inter_tdata[15:0]</obj_property>
+      <obj_property name="ObjectShortName">m_axis_inter_tdata[15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/cic_compiler_tb/m_axis_inter_tvalid">
+      <obj_property name="ElementShortName">m_axis_inter_tvalid</obj_property>
+      <obj_property name="ObjectShortName">m_axis_inter_tvalid</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/cic_compiler_tb/s_axis_inter_tready">
+      <obj_property name="ElementShortName">s_axis_inter_tready</obj_property>
+      <obj_property name="ObjectShortName">s_axis_inter_tready</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/cic_compiler_tb/m_axis_decim_tdata">
+      <obj_property name="ElementShortName">m_axis_decim_tdata[15:0]</obj_property>
+      <obj_property name="ObjectShortName">m_axis_decim_tdata[15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/cic_compiler_tb/m_axis_decim_tvalid">
+      <obj_property name="ElementShortName">m_axis_decim_tvalid</obj_property>
+      <obj_property name="ObjectShortName">m_axis_decim_tvalid</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/cic_compiler_tb/s_axis_decim_tready">
+      <obj_property name="ElementShortName">s_axis_decim_tready</obj_property>
+      <obj_property name="ObjectShortName">s_axis_decim_tready</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/cic_compiler_tb/s_axis_tdata">
+      <obj_property name="ElementShortName">s_axis_tdata[15:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axis_tdata[15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/cic_compiler_tb/s_axis_tvalid">
+      <obj_property name="ElementShortName">s_axis_tvalid</obj_property>
+      <obj_property name="ObjectShortName">s_axis_tvalid</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/cic_compiler_tb/s_axis_tlast">
+      <obj_property name="ElementShortName">s_axis_tlast</obj_property>
+      <obj_property name="ObjectShortName">s_axis_tlast</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/cic_compiler_tb/s_axis_tready">
+      <obj_property name="ElementShortName">s_axis_tready</obj_property>
+      <obj_property name="ObjectShortName">s_axis_tready</obj_property>
+   </wvobject>
+</wave_config>

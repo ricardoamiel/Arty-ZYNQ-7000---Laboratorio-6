@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="dds_compiler_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="dds_compiler_tb" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000000 us"></ZoomStartTime>
+      <ZoomEndTime time="63.975000 us"></ZoomEndTime>
+      <Cursor1Time time="13.225000 us"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="148"></NameColumnWidth>
+      <ValueColumnWidth column_width="96"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="20" />
+   <wvobject fp_name="/dds_compiler_tb/aresetn" type="logic">
+      <obj_property name="ElementShortName">aresetn</obj_property>
+      <obj_property name="ObjectShortName">aresetn</obj_property>
+   </wvobject>
+   <wvobject fp_name="/dds_compiler_tb/aclk" type="logic">
+      <obj_property name="ElementShortName">aclk</obj_property>
+      <obj_property name="ObjectShortName">aclk</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider87">
+      <obj_property name="label">DDS with Phase and LUT</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata" type="array">
+      <obj_property name="ElementShortName">m_axis_phase_tdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">m_axis_phase_tdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="vbus283" type="vbus">
+      <obj_property name="label">phase_re</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[15]" type="logic">
+         <obj_property name="ElementShortName">[15]</obj_property>
+         <obj_property name="ObjectShortName">[15]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[14]" type="logic">
+         <obj_property name="ElementShortName">[14]</obj_property>
+         <obj_property name="ObjectShortName">[14]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[13]" type="logic">
+         <obj_property name="ElementShortName">[13]</obj_property>
+         <obj_property name="ObjectShortName">[13]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[12]" type="logic">
+         <obj_property name="ElementShortName">[12]</obj_property>
+         <obj_property name="ObjectShortName">[12]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[11]" type="logic">
+         <obj_property name="ElementShortName">[11]</obj_property>
+         <obj_property name="ObjectShortName">[11]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[10]" type="logic">
+         <obj_property name="ElementShortName">[10]</obj_property>
+         <obj_property name="ObjectShortName">[10]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[9]" type="logic">
+         <obj_property name="ElementShortName">[9]</obj_property>
+         <obj_property name="ObjectShortName">[9]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[8]" type="logic">
+         <obj_property name="ElementShortName">[8]</obj_property>
+         <obj_property name="ObjectShortName">[8]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[7]" type="logic">
+         <obj_property name="ElementShortName">[7]</obj_property>
+         <obj_property name="ObjectShortName">[7]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[6]" type="logic">
+         <obj_property name="ElementShortName">[6]</obj_property>
+         <obj_property name="ObjectShortName">[6]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[5]" type="logic">
+         <obj_property name="ElementShortName">[5]</obj_property>
+         <obj_property name="ObjectShortName">[5]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[4]" type="logic">
+         <obj_property name="ElementShortName">[4]</obj_property>
+         <obj_property name="ObjectShortName">[4]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[3]" type="logic">
+         <obj_property name="ElementShortName">[3]</obj_property>
+         <obj_property name="ObjectShortName">[3]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[2]" type="logic">
+         <obj_property name="ElementShortName">[2]</obj_property>
+         <obj_property name="ObjectShortName">[2]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[1]" type="logic">
+         <obj_property name="ElementShortName">[1]</obj_property>
+         <obj_property name="ObjectShortName">[1]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[0]" type="logic">
+         <obj_property name="ElementShortName">[0]</obj_property>
+         <obj_property name="ObjectShortName">[0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="vbus266" type="vbus">
+      <obj_property name="label">phase_im</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[31]" type="logic">
+         <obj_property name="ElementShortName">[31]</obj_property>
+         <obj_property name="ObjectShortName">[31]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[30]" type="logic">
+         <obj_property name="ElementShortName">[30]</obj_property>
+         <obj_property name="ObjectShortName">[30]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[29]" type="logic">
+         <obj_property name="ElementShortName">[29]</obj_property>
+         <obj_property name="ObjectShortName">[29]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[28]" type="logic">
+         <obj_property name="ElementShortName">[28]</obj_property>
+         <obj_property name="ObjectShortName">[28]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[27]" type="logic">
+         <obj_property name="ElementShortName">[27]</obj_property>
+         <obj_property name="ObjectShortName">[27]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[26]" type="logic">
+         <obj_property name="ElementShortName">[26]</obj_property>
+         <obj_property name="ObjectShortName">[26]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[25]" type="logic">
+         <obj_property name="ElementShortName">[25]</obj_property>
+         <obj_property name="ObjectShortName">[25]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[24]" type="logic">
+         <obj_property name="ElementShortName">[24]</obj_property>
+         <obj_property name="ObjectShortName">[24]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[23]" type="logic">
+         <obj_property name="ElementShortName">[23]</obj_property>
+         <obj_property name="ObjectShortName">[23]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[22]" type="logic">
+         <obj_property name="ElementShortName">[22]</obj_property>
+         <obj_property name="ObjectShortName">[22]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[21]" type="logic">
+         <obj_property name="ElementShortName">[21]</obj_property>
+         <obj_property name="ObjectShortName">[21]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[20]" type="logic">
+         <obj_property name="ElementShortName">[20]</obj_property>
+         <obj_property name="ObjectShortName">[20]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[19]" type="logic">
+         <obj_property name="ElementShortName">[19]</obj_property>
+         <obj_property name="ObjectShortName">[19]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[18]" type="logic">
+         <obj_property name="ElementShortName">[18]</obj_property>
+         <obj_property name="ObjectShortName">[18]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[17]" type="logic">
+         <obj_property name="ElementShortName">[17]</obj_property>
+         <obj_property name="ObjectShortName">[17]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tdata[16]" type="logic">
+         <obj_property name="ElementShortName">[16]</obj_property>
+         <obj_property name="ObjectShortName">[16]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/dds_compiler_tb/m_axis_phase_tvalid" type="logic">
+      <obj_property name="ElementShortName">m_axis_phase_tvalid</obj_property>
+      <obj_property name="ObjectShortName">m_axis_phase_tvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/dds_compiler_tb/s_axis_none_tready" type="logic">
+      <obj_property name="ElementShortName">s_axis_none_tready</obj_property>
+      <obj_property name="ObjectShortName">s_axis_none_tready</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider88">
+      <obj_property name="label">DDS with LUT</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata" type="array">
+      <obj_property name="ElementShortName">m_axis_lut_tdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">m_axis_lut_tdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="vbus217" type="vbus">
+      <obj_property name="label">lut_im</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[31]" type="logic">
+         <obj_property name="ElementShortName">[31]</obj_property>
+         <obj_property name="ObjectShortName">[31]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[30]" type="logic">
+         <obj_property name="ElementShortName">[30]</obj_property>
+         <obj_property name="ObjectShortName">[30]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[29]" type="logic">
+         <obj_property name="ElementShortName">[29]</obj_property>
+         <obj_property name="ObjectShortName">[29]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[28]" type="logic">
+         <obj_property name="ElementShortName">[28]</obj_property>
+         <obj_property name="ObjectShortName">[28]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[27]" type="logic">
+         <obj_property name="ElementShortName">[27]</obj_property>
+         <obj_property name="ObjectShortName">[27]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[26]" type="logic">
+         <obj_property name="ElementShortName">[26]</obj_property>
+         <obj_property name="ObjectShortName">[26]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[25]" type="logic">
+         <obj_property name="ElementShortName">[25]</obj_property>
+         <obj_property name="ObjectShortName">[25]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[24]" type="logic">
+         <obj_property name="ElementShortName">[24]</obj_property>
+         <obj_property name="ObjectShortName">[24]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[23]" type="logic">
+         <obj_property name="ElementShortName">[23]</obj_property>
+         <obj_property name="ObjectShortName">[23]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[22]" type="logic">
+         <obj_property name="ElementShortName">[22]</obj_property>
+         <obj_property name="ObjectShortName">[22]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[21]" type="logic">
+         <obj_property name="ElementShortName">[21]</obj_property>
+         <obj_property name="ObjectShortName">[21]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[20]" type="logic">
+         <obj_property name="ElementShortName">[20]</obj_property>
+         <obj_property name="ObjectShortName">[20]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[19]" type="logic">
+         <obj_property name="ElementShortName">[19]</obj_property>
+         <obj_property name="ObjectShortName">[19]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[18]" type="logic">
+         <obj_property name="ElementShortName">[18]</obj_property>
+         <obj_property name="ObjectShortName">[18]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[17]" type="logic">
+         <obj_property name="ElementShortName">[17]</obj_property>
+         <obj_property name="ObjectShortName">[17]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[16]" type="logic">
+         <obj_property name="ElementShortName">[16]</obj_property>
+         <obj_property name="ObjectShortName">[16]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="vbus200" type="vbus">
+      <obj_property name="label">lut_re</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[15]" type="logic">
+         <obj_property name="ElementShortName">[15]</obj_property>
+         <obj_property name="ObjectShortName">[15]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[14]" type="logic">
+         <obj_property name="ElementShortName">[14]</obj_property>
+         <obj_property name="ObjectShortName">[14]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[13]" type="logic">
+         <obj_property name="ElementShortName">[13]</obj_property>
+         <obj_property name="ObjectShortName">[13]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[12]" type="logic">
+         <obj_property name="ElementShortName">[12]</obj_property>
+         <obj_property name="ObjectShortName">[12]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[11]" type="logic">
+         <obj_property name="ElementShortName">[11]</obj_property>
+         <obj_property name="ObjectShortName">[11]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[10]" type="logic">
+         <obj_property name="ElementShortName">[10]</obj_property>
+         <obj_property name="ObjectShortName">[10]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[9]" type="logic">
+         <obj_property name="ElementShortName">[9]</obj_property>
+         <obj_property name="ObjectShortName">[9]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[8]" type="logic">
+         <obj_property name="ElementShortName">[8]</obj_property>
+         <obj_property name="ObjectShortName">[8]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[7]" type="logic">
+         <obj_property name="ElementShortName">[7]</obj_property>
+         <obj_property name="ObjectShortName">[7]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[6]" type="logic">
+         <obj_property name="ElementShortName">[6]</obj_property>
+         <obj_property name="ObjectShortName">[6]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[5]" type="logic">
+         <obj_property name="ElementShortName">[5]</obj_property>
+         <obj_property name="ObjectShortName">[5]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[4]" type="logic">
+         <obj_property name="ElementShortName">[4]</obj_property>
+         <obj_property name="ObjectShortName">[4]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[3]" type="logic">
+         <obj_property name="ElementShortName">[3]</obj_property>
+         <obj_property name="ObjectShortName">[3]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[2]" type="logic">
+         <obj_property name="ElementShortName">[2]</obj_property>
+         <obj_property name="ObjectShortName">[2]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[1]" type="logic">
+         <obj_property name="ElementShortName">[1]</obj_property>
+         <obj_property name="ObjectShortName">[1]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tdata[0]" type="logic">
+         <obj_property name="ElementShortName">[0]</obj_property>
+         <obj_property name="ObjectShortName">[0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tvalid" type="logic">
+      <obj_property name="ElementShortName">m_axis_lut_tvalid</obj_property>
+      <obj_property name="ObjectShortName">m_axis_lut_tvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/dds_compiler_tb/s_axis_lut_tready" type="logic">
+      <obj_property name="ElementShortName">s_axis_lut_tready</obj_property>
+      <obj_property name="ObjectShortName">s_axis_lut_tready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/dds_compiler_tb/m_axis_lut_tlast" type="logic">
+      <obj_property name="ElementShortName">m_axis_lut_tlast</obj_property>
+      <obj_property name="ObjectShortName">m_axis_lut_tlast</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider89">
+      <obj_property name="label">DDS Input</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/dds_compiler_tb/s_axis_phase_tdata" type="array">
+      <obj_property name="ElementShortName">s_axis_phase_tdata[15:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axis_phase_tdata[15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+   </wvobject>
+   <wvobject fp_name="/dds_compiler_tb/s_axis_phase_tvalid" type="logic">
+      <obj_property name="ElementShortName">s_axis_phase_tvalid</obj_property>
+      <obj_property name="ObjectShortName">s_axis_phase_tvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/dds_compiler_tb/s_axis_phase_tlast" type="logic">
+      <obj_property name="ElementShortName">s_axis_phase_tlast</obj_property>
+      <obj_property name="ObjectShortName">s_axis_phase_tlast</obj_property>
+   </wvobject>
+   <wvobject fp_name="/dds_compiler_tb/s_axis_phase_tready" type="logic">
+      <obj_property name="ElementShortName">s_axis_phase_tready</obj_property>
+      <obj_property name="ObjectShortName">s_axis_phase_tready</obj_property>
+   </wvobject>
+</wave_config>
