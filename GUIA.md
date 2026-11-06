@@ -136,8 +136,7 @@ python3 auto/run_vitis.py xfft
 Desde la carpeta DSP:
 
 ```
-./sim_todo.sh xfft_sq                 # simula con los mismos datos y configuración que el ARM
-python3 py/xfft_cuadrada.py sim       # verificación frente a numpy y diagramas de tiempo
+./sim_todo.sh xfft_sq                 # simula con los datos del ARM y genera figuras y diagramas de tiempo
 ./fft_placa.sh hw && ./fft_placa.sh sw   # bitstream y programa del ARM con la cuadrada
 ./fft_placa.sh prog                   # con la placa conectada: ejecuta y lee la DDR
 ```

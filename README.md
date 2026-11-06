@@ -81,7 +81,7 @@ Ver GUIA.md para los comandos por terminal y GUIA_UI.md para el mismo flujo con 
 
 ```
 source entorno.sh
-cd DSP && ./sim_todo.sh && ./sim_todo.sh xfft_sq && python3 py/xfft_cuadrada.py sim
+cd DSP && ./sim_todo.sh && ./sim_todo.sh xfft_sq
 ./fft_placa.sh todo          # FFT en la placa (Arty conectada, JP4 en JTAG)
 cd ../LED && ./run_led.sh todo
 cd ../informe && python3 extraer_potencia.py && pdflatex informe_grupal.tex
