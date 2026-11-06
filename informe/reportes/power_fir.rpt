@@ -1,16 +1,16 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
--------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2025.2 (lin64) Build 6299465 Fri Nov 14 12:34:56 MST 2025
-| Date             : Thu Nov  5 11:09:54 2026
-| Host             : utec-ThinkStation-P330 running 64-bit Ubuntu 22.04.5 LTS
-| Command          : report_power -file /home/utec/Descargas/Grupal/DSP/build/vivado/power_fir.rpt
+| Date             : Fri Nov  6 15:16:15 2026
+| Host             : germain-ThinkPad-E15-Gen-2 running 64-bit Ubuntu 24.04.4 LTS
+| Command          : report_power -file {/home/germain/Documentos/Ciclo 10/Señales Biológicas/S13/Evaluado/Grupal/DSP/build/vivado/power_fir.rpt}
 | Design           : sys_wrapper
 | Device           : xc7z020clg400-1
 | Design State     : routed
 | Grade            : commercial
 | Process          : typical
 | Characterization : Production
--------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Power Report
 

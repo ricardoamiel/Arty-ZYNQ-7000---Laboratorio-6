@@ -131,6 +131,24 @@ Generan power_xfft.rpt y power_fir.rpt en DSP/build/vivado. Para probarlos en la
 python3 auto/run_vitis.py xfft
 ```
 
+## 3b. FFT con señal cuadrada (ARM hacia FPGA)
+
+Desde la carpeta DSP:
+
+```
+./sim_todo.sh xfft_sq                 # simula con los mismos datos y configuración que el ARM
+python3 py/xfft_cuadrada.py sim       # verificación frente a numpy y diagramas de tiempo
+./fft_placa.sh hw && ./fft_placa.sh sw   # bitstream y programa del ARM con la cuadrada
+./fft_placa.sh prog                   # con la placa conectada: ejecuta y lee la DDR
+```
+
+Capturas de la interfaz (sin abrir ventanas), desde la carpeta capturas; requiere python-xlib:
+
+```
+./capturar.sh bd ../DSP/build/vivado/xfft/xfft.xpr bd_xfft
+./capturar.sh ondas ../DSP/build/sim/xfft_sq.xpr ondas_xfft_sq_completo ../DSP/ip_xfft/tb/xfft_square_tb_completo.wcfg
+```
+
 ## 4. Informe
 
 Desde la carpeta informe:

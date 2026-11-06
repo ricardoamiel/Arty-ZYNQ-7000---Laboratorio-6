@@ -59,5 +59,5 @@ report_utilization       -file $out/reportes/utilization.rpt
 report_timing_summary    -file $out/reportes/timing.rpt
 
 write_hw_platform -fixed -include_bit -force -file $out/sys_wrapper.xsa
-file copy -force [glob $out/led_sys/led_sys.runs/impl_1/*.bit] $out/sys_wrapper.bit
+file copy -force [lindex [glob $out/led_sys/led_sys.runs/impl_1/*.bit] 0] $out/sys_wrapper.bit
 puts "LED_HW_OK"

@@ -40,11 +40,28 @@ Curso de Señales Biológicas, semana 13. Herramientas: Vivado y Vitis 2025.2 so
 
 ![FFT](DSP/resultados/xfft_1.svg)
 
+**FFT con la señal cuadrada que inyecta el ARM:** solo armónicos impares (k = 32, 96, 160) con amplitud en razón 1/m; el núcleo coincide con numpy con un error de 0.02 % y la IFFT reconstruye la cuadrada.
+
+![FFT con cuadrada](DSP/resultados/xfft_cuadrada_sim.svg)
+
+**Diagrama de bloques del sistema FFT** (exportado de Vivado 2025.2): PS7, AXI DMA, AXI4 Stream Switch, xFFT 9.1 y System ILA.
+
+![Block Design FFT](capturas/bd_xfft.svg)
+
+**Diagrama de tiempo:** configuración, trama de entrada de 2048 muestras, salida de la FFT y de la IFFT (AXI4 Stream a 100 MHz).
+
+![Diagrama de tiempo](DSP/resultados/diagrama_tiempo_general.svg)
+
+**Visor de ondas de Vivado** con la simulación de la señal cuadrada.
+
+![Ondas](capturas/ondas_xfft_sq_completo_panel.png)
+
 ## Qué se hizo
 
 1. **LED con la FPGA y el procesador:** LD0 y LD1 los controla el ARM Cortex A9 con un programa en C (AXI GPIO); LD2 parpadea a 1 Hz con un contador en Verilog y LD3 sigue al switch SW0, sin intervención del procesador.
 2. **Simulación de la FFT y del filtro FIR:** núcleos xFFT 9.1 y FIR Compiler 7.2 simulados en xsim, con figuras vectoriales generadas en Python.
-3. **Consumo de potencia:** estimación con report_power de Vivado para los tres diseños y análisis en el informe.
+3. **FFT en el sistema PS y PL con señal cuadrada:** el ARM inyecta por DMA una cuadrada (antes un chirp); se verificó con un testbench que usa los mismos datos y configuración, con diagramas de tiempo y capturas del visor de ondas. fft_placa.sh deja lista la ejecución en la placa.
+4. **Consumo de potencia:** estimación con report_power de Vivado para los tres diseños y análisis en el informe.
 
 ## Estructura
 
@@ -54,6 +71,7 @@ Curso de Señales Biológicas, semana 13. Herramientas: Vivado y Vitis 2025.2 so
 | DSP | Proyecto del curso con los núcleos DSP, simulación sin interfaz (sim_todo.sh) y figuras en resultados |
 | informe | Informe en LaTeX: informe.tex (individual) e informe_grupal.tex (con ambos integrantes), figuras y reportes de potencia |
 | evidencias | Foto de la placa y capturas de Vivado, Vitis y las terminales |
+| capturas | Capturas automáticas de la interfaz de Vivado y diagramas de bloques vectoriales (LED, FFT y FIR) |
 | boards | Board files de Digilent para la Arty Z7-20 |
 | instalacion | Configuración de la instalación mínima de Vivado y Vitis (solo Zynq 7000) |
 
@@ -63,7 +81,8 @@ Ver GUIA.md para los comandos por terminal y GUIA_UI.md para el mismo flujo con 
 
 ```
 source entorno.sh
-cd DSP && ./sim_todo.sh
+cd DSP && ./sim_todo.sh && ./sim_todo.sh xfft_sq && python3 py/xfft_cuadrada.py sim
+./fft_placa.sh todo          # FFT en la placa (Arty conectada, JP4 en JTAG)
 cd ../LED && ./run_led.sh todo
 cd ../informe && python3 extraer_potencia.py && pdflatex informe_grupal.tex
 ```

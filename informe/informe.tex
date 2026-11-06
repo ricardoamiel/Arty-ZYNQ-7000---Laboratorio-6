@@ -31,7 +31,7 @@
 \maketitle
 
 \begin{abstract}
-Se implementó en la Arty Z7-20 un sistema que enciende LEDs desde la lógica programable (PL) y desde el procesador ARM (PS), se simularon los núcleos xFFT y FIR Compiler de AMD y se estimó el consumo de potencia de los tres diseños con Vivado 2025.2. El diseño del LED funcionó en la placa: dos LEDs responden al programa en C y dos a la lógica de la FPGA, con un uso menor al 1 \% de los recursos. La FFT de 1024 puntos ubicó el tono de 1 MHz en el índice 10 y la transformada inversa reconstruyó la entrada con una similitud de 0.99999. La potencia total estimada fue de 1.401 W para el LED, 1.532 W para la FFT y 1.498 W para el FIR; en los tres casos el PS7 consume cerca de 1.26 W, por lo que el costo propio de la lógica de procesamiento es de solo 7, 127 y 92 mW respectivamente.
+Se implementó en la Arty Z7-20 un sistema que enciende LEDs desde la lógica programable (PL) y desde el procesador ARM (PS), se simularon los núcleos xFFT y FIR Compiler de AMD y se estimó el consumo de potencia de los tres diseños con Vivado 2025.2. El diseño del LED funcionó en la placa: dos LEDs responden al programa en C y dos a la lógica de la FPGA, con un uso menor al 1 \% de los recursos. Se modificó la inyección de datos del ARM hacia la FPGA, de senoidal a una señal cuadrada; con los mismos datos y la misma configuración, el núcleo xFFT entregó solo armónicos impares con amplitudes en razón 1, 1/3 y 1/5, coincidiendo con numpy con un error de 0.02 \%, y la IFFT reconstruyó la cuadrada. Se incluyen los diagramas de bloques de los tres sistemas y los diagramas de tiempo de las interfaces AXI4 Stream. La FFT de 1024 puntos ubicó el tono de 1 MHz en el índice 10 y la transformada inversa reconstruyó la entrada con una similitud de 0.99999. La potencia total estimada fue de 1.401 W para el LED, 1.532 W para la FFT y 1.498 W para el FIR; en los tres casos el PS7 consume cerca de 1.26 W, por lo que el costo propio de la lógica de procesamiento es de solo 7, 127 y 92 mW respectivamente.
 \end{abstract}
 
 \section*{Material complementario}
@@ -111,6 +111,7 @@ El diseño de bloques contiene el PS7 configurado con el preajuste de la placa, 
 \caption{Diseño de bloques generado en Vivado 2025.2: PS7, AXI Interconnect, AXI GPIO (gpio\_ps), reinicio del procesador (rst\_ps7\_100M) y el módulo RTL pl\_blink\_0.}
 \label{fig:bd}
 \end{figure}
+\figura{../capturas/bd_led.pdf}{0.95}{Diagrama de bloques del sistema LED exportado en formato vectorial desde Vivado.}
 
 \subsection{Lógica programable (PL)}
 El módulo pl\_blink divide el reloj FCLK0 de 100 MHz con un contador de 32 bits; cada 50 millones de ciclos invierte la salida, de modo que LD2 parpadea a 1 Hz sin intervención del procesador. LD3 copia directamente el estado del switch SW0.
@@ -232,7 +233,9 @@ Similitud entrada frente a IFFT & 0.99999\\\bottomrule
 \figura{../DSP/resultados/fir_compiler_3.pdf}{0.8}{Salida del interpolador.}
 \figura{../DSP/resultados/fir_compiler_4.pdf}{0.8}{Salida del decimador.}
 \figura{../DSP/resultados/fir_compiler_5.pdf}{0.8}{Salida del transformador de Hilbert (parte real e imaginaria).}
-\figura{../capturas/bd_fir.pdf}{0.98}{Diagrama de bloques del sistema FIR exportado de Vivado 2025.2.}
+\subsection{Diagrama de bloques del sistema FIR}
+El sistema FIR del curso sigue la misma idea que el de la FFT: el AXI DMA lleva las muestras desde la DDR, un primer AXI4 Stream Switch las dirige a uno de los cuatro filtros (pasabanda, decimador, interpolador o Hilbert) y un segundo switch devuelve la salida elegida al DMA. Un AXI GPIO y un System ILA completan el diseño. Así, un solo bitstream permite probar los cuatro filtros desde el ARM cambiando solo la configuración de los switches.
+\figura{../capturas/bd_fir.pdf}{0.98}{Diagrama de bloques del sistema FIR exportado de Vivado 2025.2: AXI DMA, dos AXI4 Stream Switch y los cuatro FIR Compiler.}
 \begin{itemize}
   \item Entrada: el ruido aleatorio tiene un espectro aproximadamente plano entre 0 y 50 MHz, por lo que sirve para observar la respuesta de cada filtro.
   \item Pasabanda: conserva la banda centrada en 10 MHz; el 90 \% de la energía de salida queda entre 6.9 y 13.1 MHz, y fuera de ella la atenuación es de unos 40 a 50 dB.
@@ -309,7 +312,7 @@ La arquitectura pipelined streaming procesa una trama mientras recibe la siguien
 
 \subsection{Ejecución en la placa}
 El bitstream del sistema FFT y la aplicación con la señal cuadrada quedaron compilados con Vivado y Vitis 2025.2. El script fft\_placa.sh graba la placa, ejecuta el programa en el ARM, lee de la DDR los tres buffers con xsdb y genera la misma figura con datos reales. \IfFileExists{../DSP/resultados/xfft_cuadrada_placa.pdf}{La Figura siguiente muestra el resultado obtenido en la Arty Z7-20.}{La ejecución en la placa queda pendiente porque la Arty Z7-20 no estuvo disponible al cierre de este informe; la verificación del cálculo se hizo con los mismos datos y la misma configuración mediante simulación.}
-\figura{../DSP/resultados/xfft_cuadrada_placa.pdf}{0.9}{FFT e IFFT ejecutadas en la Arty Z7-20 con la señal cuadrada inyectada por el ARM.}
+\IfFileExists{../DSP/resultados/xfft_cuadrada_placa.pdf}{\figura{../DSP/resultados/xfft_cuadrada_placa.pdf}{0.9}{FFT e IFFT ejecutadas en la Arty Z7-20 con la señal cuadrada inyectada por el ARM.}}{}
 
 \section{Parte 4: consumo de potencia}
 \subsection{Metodología}
@@ -349,6 +352,7 @@ Para reducir el consumo se puede: bajar la frecuencia de FCLK0 o de los procesad
 \begin{enumerate}
   \item El Zynq permite controlar el mismo tipo de periférico desde dos dominios: los LEDs de la PL funcionan sin software y con tiempo exacto, mientras que los del PS se controlan con un programa en C a través del bus AXI; ambos convivieron en la placa sin interferencia.
   \item Los núcleos xFFT y FIR Compiler responden según lo esperado: la FFT ubica el tono en el bin correcto, muestra la fuga espectral prevista para un tono fuera de bin y la IFFT reconstruye la señal; cada filtro FIR moldea el espectro del ruido según su tipo.
+  \item Al cambiar la señal inyectada por el ARM a una cuadrada de 64 muestras por periodo, la FFT de 2048 puntos ubicó la fundamental en $k = 32$ y los armónicos impares en $k = 96$ y $160$ con amplitudes en razón $1/m$, mientras los armónicos pares fueron nulos, tal como predice la serie de Fourier. Los diagramas de tiempo muestran el protocolo AXI4 Stream a una muestra por ciclo y un retardo de unos 22 µs entre el fin de la trama de entrada y el inicio de la salida.
   \item El consumo está dominado por el procesador (cerca de 1.26 W); la lógica de procesamiento añade entre 7 y 127 mW según el diseño, por lo que mover cálculos intensivos a la PL tiene un costo energético bajo frente al del PS.
   \item La instalación mínima de Vivado y Vitis 2025.2, limitada a la familia Zynq 7000, fue suficiente para todo el laboratorio y redujo la descarga de 163 GB a 23 GB.
 \end{enumerate}
