@@ -18,7 +18,8 @@
   {\pendiente{figura \detokenize{#1}}}}
 
 \lstset{basicstyle=\ttfamily\footnotesize,frame=single,breaklines=true,columns=fullflexible,
-        keywordstyle=\bfseries,commentstyle=\color{gray},showstringspaces=false}
+        keywordstyle=\bfseries,commentstyle=\color{gray},showstringspaces=false,
+        literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {ñ}{{\~n}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Ó}{{\'O}}1 {Ñ}{{\~N}}1}
 
 \title{\textbf{Laboratorio 6: LED con PS y PL, simulación de FFT y filtro FIR\\y consumo de potencia en la Arty Z7-20}}
 % Autores: informe_grupal.tex redefine este comando antes de cargar este archivo
@@ -49,6 +50,8 @@ El arranque del Zynq sigue dos etapas. Primero la BootROM carga el FSBL, que con
 \begin{enumerate}
   \item Diseñar un sistema que encienda LEDs desde la FPGA (PL) y desde el procesador (PS) de la Arty Z7-20.
   \item Simular los núcleos de propiedad intelectual xFFT y FIR Compiler de AMD y verificar su respuesta.
+  \item Modificar la inyección de datos del ARM hacia la FPGA, de una señal senoidal a una señal cuadrada, y verificar la FFT y la IFFT calculadas por el núcleo.
+  \item Documentar los diagramas de bloques de Vivado y los diagramas de tiempo de las interfaces AXI4 Stream.
   \item Estimar y analizar el consumo de potencia de los diseños implementados.
 \end{enumerate}
 
@@ -59,6 +62,22 @@ El arranque del Zynq sigue dos etapas. Primero la BootROM carga el FSBL, que con
   \item Archivos de placa de Digilent (vivado-boards) para la Arty Z7-20.
   \item Python 3.12 con NumPy y Matplotlib para el posprocesamiento de la simulación.
 \end{itemize}
+
+\subsection{Migración del proyecto del curso a Linux y Vivado 2025.2}
+Los scripts entregados por el docente fueron hechos para Windows y Vivado 2024.2. Para ejecutarlos en Ubuntu con la versión 2025.2 se hicieron los cambios de la Tabla \ref{tab:migracion}; ninguno altera la configuración de los núcleos ni del diseño de bloques.
+\begin{table}[H]\centering
+\caption{Adaptaciones hechas a los scripts del curso.}
+\label{tab:migracion}
+\begin{tabular}{p{0.38\linewidth}p{0.55\linewidth}}\toprule
+Problema & Solución\\\midrule
+Los scripts de bloques se detienen si la versión no es 2024.2 & La versión esperada se toma de la herramienta instalada; las versiones de los núcleos (xFFT 9.1, FIR 7.2, AXI DMA 7.1) no cambian en 2025.2\\
+Rutas de Windows y llamadas a vivado.bat & entorno.sh ubica Vivado, Vitis y Python en cualquier instalación de Linux\\
+Rutas con espacios cortadas por add\_files y get\_files & Las rutas se pasan como lista de Tcl\\
+Board files instaladas dentro de Vivado & Se cargan desde la carpeta boards del proyecto con board.repoPaths\\
+Simulación con interfaz gráfica obligatoria & Versión por lotes dsp\_sim\_batch.tcl y figuras vectoriales en Python\\
+Memoria insuficiente al sintetizar con todos los núcleos & Se limitan los trabajos paralelos a 3 (variable VIVADO\_JOBS)\\\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Parte 1: encendido de LEDs con la FPGA y el procesador}
 \subsection{Arquitectura}
@@ -213,6 +232,7 @@ Similitud entrada frente a IFFT & 0.99999\\\bottomrule
 \figura{../DSP/resultados/fir_compiler_3.pdf}{0.8}{Salida del interpolador.}
 \figura{../DSP/resultados/fir_compiler_4.pdf}{0.8}{Salida del decimador.}
 \figura{../DSP/resultados/fir_compiler_5.pdf}{0.8}{Salida del transformador de Hilbert (parte real e imaginaria).}
+\figura{../capturas/bd_fir.pdf}{0.98}{Diagrama de bloques del sistema FIR exportado de Vivado 2025.2.}
 \begin{itemize}
   \item Entrada: el ruido aleatorio tiene un espectro aproximadamente plano entre 0 y 50 MHz, por lo que sirve para observar la respuesta de cada filtro.
   \item Pasabanda: conserva la banda centrada en 10 MHz; el 90 \% de la energía de salida queda entre 6.9 y 13.1 MHz, y fuera de ella la atenuación es de unos 40 a 50 dB.
@@ -221,7 +241,76 @@ Similitud entrada frente a IFFT & 0.99999\\\bottomrule
   \item Hilbert: entrega una parte real y una imaginaria desfasadas 90 grados para formar la señal analítica. Con ruido real a la entrada la supresión de frecuencias negativas medida es de solo 4.9 dB, porque el filtro solo actúa dentro de su banda de paso; con una señal de banda angosta el efecto sería más marcado.
 \end{itemize}
 
-\section{Parte 3: consumo de potencia}
+\section{Parte 3: FFT en el sistema PS y PL con señal cuadrada}
+\subsection{Diagrama de bloques del sistema FFT}
+El diseño del curso conecta el procesador con el núcleo xFFT mediante un AXI DMA. El ARM escribe en la DDR la configuración y las muestras; el DMA las lee por el puerto HP0 y las entrega como flujo AXI4 Stream. Un AXI4 Stream Switch, controlado por el ARM, dirige ese flujo al canal de configuración del núcleo (a través de un convertidor de subconjunto que recorta la palabra a 24 bits) o al canal de datos. La salida de la FFT vuelve por el DMA a la DDR mediante el puerto HP1. Un System ILA observa la entrada y la salida del núcleo para depuración por JTAG.
+
+\figura{../capturas/bd_xfft.pdf}{0.98}{Diagrama de bloques del sistema FFT exportado de Vivado 2025.2: PS7, AXI DMA, AXI4 Stream Switch, convertidor de subconjunto, xFFT 9.1 y System ILA.}
+\figura{../capturas/bd_xfft.png}{0.98}{Captura de la interfaz de Vivado con el diagrama de bloques del sistema FFT.}
+
+\subsection{Modificación de la inyección de datos: de senoidal a cuadrada}
+La aplicación original del ARM generaba una señal compleja de barrido en frecuencia (chirp de 8 a 0 MHz) con amplitud 16000. Se reemplazó por una señal cuadrada real de la misma amplitud, con periodo de 64 muestras, es decir $f_0 = 100\ \text{MHz}/64 = 1.5625$ MHz. Con $N = 2048$ el periodo cabe un número entero de veces (32), por lo que la fundamental cae exactamente en el bin $k_0 = 32$ sin fuga espectral.
+
+\lstinputlisting[language=C,caption={Función que genera la señal cuadrada en xfft\_main.c},linerange={318-331}]{../DSP/ip_xfft/xfft_main.c}
+
+Además se corrigieron tres detalles del programa original que afectaban la lectura de resultados:
+\begin{itemize}
+  \item La salida de la IFFT se escribía sobre el buffer de entrada; ahora tiene su propio buffer en 0x10500000, de modo que entrada, FFT e IFFT quedan disponibles en la DDR.
+  \item El puntero a la palabra de configuración nunca se inicializaba y apuntaba a la dirección 0; ahora apunta a una variable alineada.
+  \item La espera del DMA terminaba cuando acababa cualquiera de los dos canales; ahora espera el canal que corresponde a cada etapa antes de leer el resultado.
+\end{itemize}
+
+\subsection{Verificación con los mismos datos del ARM}
+Para verificar el cálculo de la FPGA se creó el testbench xfft\_square\_tb, que entrega al núcleo exactamente la misma secuencia que genera init\_tx\_buffer\_square, con la misma palabra de configuración: 2048 puntos, dirección directa y esquema de escalamiento 0x6AA para la FFT, y escalamiento nulo para la IFFT. El núcleo se simula con su modelo de comportamiento, que reproduce el cálculo en punto fijo del hardware.
+
+\figura{../DSP/resultados/xfft_cuadrada_sim.pdf}{0.9}{Señal cuadrada inyectada, magnitud de la FFT calculada por el núcleo frente a numpy y reconstrucción con la IFFT.}
+
+Una cuadrada de amplitud $A$ solo contiene armónicos impares, con amplitud proporcional a $1/m$:
+\[
+x(t) = \frac{4A}{\pi}\sum_{m=1,3,5,\dots}\frac{1}{m}\sin(2\pi m f_0 t)
+\quad\Rightarrow\quad
+|X[m k_0]| \approx \frac{2A}{\pi m}\ \text{(con la escala } 1/N\text{ del núcleo)}.
+\]
+\begin{table}[H]\centering
+\caption{Magnitud de la FFT en los primeros armónicos (A = 16000).}
+\label{tab:armonicos}
+\begin{tabular}{cccccc}\toprule
+$m$ & $k$ & $f$ (MHz) & Teoría $2A/(\pi m)$ & numpy escalado & Núcleo xFFT\\\midrule
+1 & 32 & 1.5625 & 10186 & 10191.2 & 10191.2\\
+2 & 64 & 3.1250 & 0 & 0 & 0\\
+3 & 96 & 4.6875 & 3395 & 3408.0 & 3408.7\\
+4 & 128 & 6.2500 & 0 & 0 & 0\\
+5 & 160 & 7.8125 & 2037 & 2058.0 & 2058.4\\\bottomrule
+\end{tabular}
+\end{table}
+El núcleo coincide con numpy con un error máximo relativo de 0.02 \%, producto del redondeo en punto fijo. El esquema 0x6AA escala la salida por $1/2048 = 1/N$, lo que evita el desborde de los 16 bits. Las pequeñas diferencias frente a la teoría continua se deben al solapamiento de los armónicos superiores en una señal muestreada. La IFFT sin escalamiento devuelve la cuadrada original con amplitud máxima de 16006 y similitud normalizada de 1.000000.
+
+\subsection{Diagramas de tiempo}
+Los diagramas se obtuvieron del volcado VCD de la simulación. Todas las interfaces usan AXI4 Stream a 100 MHz: una muestra se transfiere en cada flanco de subida de aclk en que tvalid y tready valen 1 a la vez.
+
+\figura{../DSP/resultados/diagrama_tiempo_general.pdf}{0.98}{Diagrama de tiempo completo: configuración del núcleo, trama de entrada de 2048 muestras, salida de la FFT y salida de la IFFT.}
+\figura{../DSP/resultados/diagrama_tiempo_inicio.pdf}{0.98}{Inicio de la trama de entrada: el núcleo mantiene tready en 1 y acepta una muestra por ciclo; el bus de datos alterna entre 16000 y menos 16000 cada 32 muestras.}
+\figura{../DSP/resultados/diagrama_tiempo_fin_trama.pdf}{0.98}{Fin de la trama de entrada: tlast se activa con la muestra 2048 y marca el fin de la trama.}
+\figura{../capturas/ondas_xfft_sq.png}{0.98}{Captura del visor de ondas de Vivado con la simulación de la señal cuadrada.}
+
+\begin{table}[H]\centering
+\caption{Tiempos medidos en la simulación.}
+\label{tab:tiempos}
+\begin{tabular}{lc}\toprule
+Evento & Tiempo\\\midrule
+Primera muestra de entrada & 385 ns\\
+Duración de la trama de entrada (2048 ciclos de 10 ns) & 20.48 µs\\
+Primera muestra de salida de la FFT & 42.6 µs\\
+Primera muestra de salida de la IFFT & 84.8 µs\\\bottomrule
+\end{tabular}
+\end{table}
+La arquitectura pipelined streaming procesa una trama mientras recibe la siguiente, pero la salida en orden natural exige esperar a que llegue la trama completa y reordenar los resultados; por eso la FFT empieza a entregar datos unos 21.7 µs después de terminar la entrada, del orden de una trama adicional. La IFFT, conectada en cascada, repite el mismo retardo. Con ambos núcleos ocupados, el sistema puede sostener una muestra por ciclo, es decir 100 millones de muestras por segundo.
+
+\subsection{Ejecución en la placa}
+El bitstream del sistema FFT y la aplicación con la señal cuadrada quedaron compilados con Vivado y Vitis 2025.2. El script fft\_placa.sh graba la placa, ejecuta el programa en el ARM, lee de la DDR los tres buffers con xsdb y genera la misma figura con datos reales. \IfFileExists{../DSP/resultados/xfft_cuadrada_placa.pdf}{La Figura siguiente muestra el resultado obtenido en la Arty Z7-20.}{La ejecución en la placa queda pendiente porque la Arty Z7-20 no estuvo disponible al cierre de este informe; la verificación del cálculo se hizo con los mismos datos y la misma configuración mediante simulación.}
+\figura{../DSP/resultados/xfft_cuadrada_placa.pdf}{0.9}{FFT e IFFT ejecutadas en la Arty Z7-20 con la señal cuadrada inyectada por el ARM.}
+
+\section{Parte 4: consumo de potencia}
 \subsection{Metodología}
 La potencia se estimó con report\_power de Vivado sobre cada diseño implementado, con las condiciones por defecto (temperatura ambiente de 25 °C y actividad de conmutación vectorless de 12.5 \%). La potencia total se divide en estática, debida a las corrientes de fuga del chip, y dinámica, proporcional a la frecuencia y a la actividad:
 \[

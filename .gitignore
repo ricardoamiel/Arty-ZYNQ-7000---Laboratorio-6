@@ -31,3 +31,6 @@ instalacion/*.log
 
 # Notas personales de trabajo
 prompt-L6-grupal.txt
+
+# Capturas automáticas: marcadores temporales
+capturas/*.listo

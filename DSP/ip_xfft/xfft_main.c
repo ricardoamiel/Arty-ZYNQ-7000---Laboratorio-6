@@ -12,8 +12,13 @@
 
 #define MEM_BASE_ADDR		0x10000000
 
-#define TX_BUFFER_BASE		(MEM_BASE_ADDR + 0x00100000)
-#define RX_BUFFER_BASE		(MEM_BASE_ADDR + 0x00300000)
+#define TX_BUFFER_BASE		(MEM_BASE_ADDR + 0x00100000)   /* entrada: señal cuadrada */
+#define RX_BUFFER_BASE		(MEM_BASE_ADDR + 0x00300000)   /* salida de la FFT directa */
+#define IFFT_BUFFER_BASE	(MEM_BASE_ADDR + 0x00500000)   /* salida de la FFT inversa (antes se sobrescribía la entrada) */
+
+/* Señal cuadrada inyectada por el ARM (antes: chirp de 8 a 0 MHz) */
+#define SQ_PERIODO          64          /* muestras por periodo: 100 MHz / 64 = 1.5625 MHz */
+#define SQ_AMPLITUD         16000       /* misma amplitud que el chirp original */
 #define POLL_TIMEOUT_COUNTER    1000000U
 
 #define XFTT_LOG2            11
@@ -26,6 +31,9 @@ void axi_switches_stop(XAxis_Switch AxisSwitch, u8 MiIndex, u8 SiIndex);
 uint16_t scale_cascades(uint16_t log2nFFT);
 
 void init_tx_buffer_chirp(u8 *TxBufferPtr, int Nlen);
+void init_tx_buffer_square(u8 *TxBufferPtr, int Nlen);
+void esperar_dma(int direccion, const char *etapa);
+void imprimir_bins(u8 *Buf, int Nlen);
 
 
 
@@ -40,7 +48,9 @@ typedef union {
     uint32_t reg;  // Full 32-bit register access
 } xfft_config_t;
 
-xfft_config_t *xfft_config;
+/* Antes era un puntero sin inicializar (apuntaba a la dirección 0); ahora apunta a una variable alineada en DDR */
+static xfft_config_t xfft_config_mem __attribute__((aligned(64)));
+xfft_config_t *xfft_config = &xfft_config_mem;
 
 
 int main()
@@ -113,19 +123,13 @@ int main()
         return XST_FAILURE;
     }
     TimeOut = POLL_TIMEOUT_COUNTER;
-    while (XAxiDma_Busy(&AxiDma, XAXIDMA_DEVICE_TO_DMA) && XAxiDma_Busy(&AxiDma, XAXIDMA_DMA_TO_DEVICE)) {
-        if (TimeOut == 0) {
-            xil_printf("\n\n[WARNING] AXIDMA TIMEOUT \r\n\n");
-            break;
-        }
-        TimeOut--;
-        usleep(1U);
-    }
+    esperar_dma(XAXIDMA_DMA_TO_DEVICE, "configuracion FFT directa");
     TimeOut = POLL_TIMEOUT_COUNTER;
     xil_printf("[INFO] xFFT configuration for FORWARD Done \r\n");
 
     xil_printf("[INFO] xFFT Forward Start \r\n");
-    init_tx_buffer_chirp(TxBufferPtr, ((int)1 << XFTT_LOG2));
+    xil_printf("[INFO] Entrada: senal cuadrada, periodo %d muestras, amplitud %d\r\n", SQ_PERIODO, SQ_AMPLITUD);
+    init_tx_buffer_square(TxBufferPtr, ((int)1 << XFTT_LOG2));
 
     Xil_DCacheFlushRange((UINTPTR)TxBufferPtr, 4*((int)1 << XFTT_LOG2));
 	Xil_DCacheFlushRange((UINTPTR)RxBufferPtr, 4*((int)1 << XFTT_LOG2));
@@ -143,14 +147,9 @@ int main()
         return XST_FAILURE;
     }
 
-    while (XAxiDma_Busy(&AxiDma, XAXIDMA_DEVICE_TO_DMA) && XAxiDma_Busy(&AxiDma, XAXIDMA_DMA_TO_DEVICE)) {
-        if (TimeOut == 0) {
-            xil_printf("\n\n[WARNING] AXIDMA TIMEOUT \r\n\n");
-            break;
-        }
-        TimeOut--;
-        usleep(1U);
-    }
+    esperar_dma(XAXIDMA_DEVICE_TO_DMA, "FFT directa");
+    Xil_DCacheInvalidateRange((UINTPTR)RxBufferPtr, 4*((int)1 << XFTT_LOG2));
+    imprimir_bins(RxBufferPtr, ((int)1 << XFTT_LOG2));
 
     xil_printf("[INFO] xFFT Forward Done \r\n");
 
@@ -168,27 +167,19 @@ int main()
         return XST_FAILURE;
     }
     TimeOut = POLL_TIMEOUT_COUNTER;
-    while (XAxiDma_Busy(&AxiDma, XAXIDMA_DEVICE_TO_DMA) && XAxiDma_Busy(&AxiDma, XAXIDMA_DMA_TO_DEVICE)) {
-        if (TimeOut == 0) {
-            xil_printf("\n\n[WARNING] AXIDMA TIMEOUT \r\n\n");
-            break;
-        }
-        TimeOut--;
-        usleep(1U);
-    }
+    esperar_dma(XAXIDMA_DMA_TO_DEVICE, "configuracion FFT inversa");
     TimeOut = POLL_TIMEOUT_COUNTER;
     xil_printf("[INFO] xFFT configuration for Inverse Done \r\n");
 
     xil_printf("[INFO] xFFT Inverse Start \r\n");
-    //TODO: change initialization
-    init_tx_buffer_chirp(TxBufferPtr, ((int)1 << XFTT_LOG2));
-
-    Xil_DCacheFlushRange((UINTPTR)TxBufferPtr, 4*((int)1 << XFTT_LOG2));
-	Xil_DCacheFlushRange((UINTPTR)RxBufferPtr, 4*((int)1 << XFTT_LOG2));
+    /* La entrada de la IFFT es la salida de la FFT directa; el resultado va a un buffer propio */
+    u8 *IfftBufferPtr = (u8 *)IFFT_BUFFER_BASE;
+    Xil_DCacheFlushRange((UINTPTR)RxBufferPtr, 4*((int)1 << XFTT_LOG2));
+	Xil_DCacheFlushRange((UINTPTR)IfftBufferPtr, 4*((int)1 << XFTT_LOG2));
 
     axi_switches_cnfg(AxisSwitch_0, 0, 0);
 
-    Status = XAxiDma_SimpleTransfer(&AxiDma, (UINTPTR) TxBufferPtr,	4*((int)1 << XFTT_LOG2), XAXIDMA_DEVICE_TO_DMA);
+    Status = XAxiDma_SimpleTransfer(&AxiDma, (UINTPTR) IfftBufferPtr, 4*((int)1 << XFTT_LOG2), XAXIDMA_DEVICE_TO_DMA);
     if (Status != XST_SUCCESS) {
         return XST_FAILURE;
     }
@@ -198,19 +189,20 @@ int main()
         return XST_FAILURE;
     }
 
-    while (XAxiDma_Busy(&AxiDma, XAXIDMA_DEVICE_TO_DMA) && XAxiDma_Busy(&AxiDma, XAXIDMA_DMA_TO_DEVICE)) {
-        if (TimeOut == 0) {
-            xil_printf("\n\n[WARNING] AXIDMA TIMEOUT \r\n\n");
-            break;
-        }
-        TimeOut--;
-        usleep(1U);
+    esperar_dma(XAXIDMA_DEVICE_TO_DMA, "FFT inversa");
+    Xil_DCacheInvalidateRange((UINTPTR)IfftBufferPtr, 4*((int)1 << XFTT_LOG2));
+    {
+        int16_t *x = (int16_t *)TxBufferPtr, *y = (int16_t *)IfftBufferPtr;
+        xil_printf("[INFO] Primeras muestras: entrada | IFFT (parte real)\r\n");
+        for (int i = 0; i < 4; i++) xil_printf("   n=%d  %6d | %6d\r\n", i*16, x[2*i*16], y[2*i*16]);
     }
 
     xil_printf("[INFO] xFFT Inverse Done \r\n");
 
     axi_switches_stop(AxisSwitch_0, 0, 0);
 
+    xil_printf("[INFO] Buffers en DDR: entrada 0x%08x, FFT 0x%08x, IFFT 0x%08x (%d muestras de 32 bits)\r\n",
+               TX_BUFFER_BASE, RX_BUFFER_BASE, IFFT_BUFFER_BASE, (int)1 << XFTT_LOG2);
     xil_printf("[INFO] End Application\r\n");
 
 	return XST_SUCCESS;
@@ -321,3 +313,45 @@ uint16_t scale_cascades(uint16_t log2nFFT)
 }
 
 
+
+
+/* Señal cuadrada real: +A durante medio periodo y -A el otro medio; parte imaginaria cero.
+ * Su espectro solo tiene armónicos impares en k = N/P * (2m+1) con amplitud proporcional a 1/(2m+1). */
+void init_tx_buffer_square(u8 *TxBufferPtr, int Nlen)
+{
+    int idx;
+    int16_t re, im = 0;
+    for (idx = 0; idx < Nlen; idx++) {
+        re = ((idx % SQ_PERIODO) < (SQ_PERIODO / 2)) ? SQ_AMPLITUD : -SQ_AMPLITUD;
+        TxBufferPtr[4 * idx + 0] = (u8)(re & 0xFF);
+        TxBufferPtr[4 * idx + 1] = (u8)((re >> 8) & 0xFF);
+        TxBufferPtr[4 * idx + 2] = (u8)(im & 0xFF);
+        TxBufferPtr[4 * idx + 3] = (u8)((im >> 8) & 0xFF);
+    }
+}
+
+/* Espera a que termine la transferencia en la dirección indicada (antes el lazo salía cuando terminaba cualquiera) */
+void esperar_dma(int direccion, const char *etapa)
+{
+    int TimeOut = POLL_TIMEOUT_COUNTER;
+    while (XAxiDma_Busy(&AxiDma, direccion)) {
+        if (TimeOut-- == 0) {
+            xil_printf("[WARNING] AXIDMA TIMEOUT en %s\r\n", etapa);
+            return;
+        }
+        usleep(1U);
+    }
+}
+
+/* Imprime la magnitud de los bins donde deben aparecer los armónicos de la cuadrada */
+void imprimir_bins(u8 *Buf, int Nlen)
+{
+    int16_t *X = (int16_t *)Buf;
+    int k0 = Nlen / SQ_PERIODO;          /* fundamental */
+    int ks[] = {0, k0, 2*k0, 3*k0, 5*k0, 7*k0};
+    xil_printf("[INFO] Magnitud de la FFT en la FPGA (fundamental k=%d):\r\n", k0);
+    for (int i = 0; i < 6; i++) {
+        double re = X[2*ks[i]], im = X[2*ks[i] + 1];
+        xil_printf("   k=%4d  |X|=%6d\r\n", ks[i], (int)sqrt(re*re + im*im));
+    }
+}

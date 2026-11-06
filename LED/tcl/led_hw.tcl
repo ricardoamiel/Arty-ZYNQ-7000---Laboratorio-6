@@ -9,8 +9,8 @@ set_param board.repoPaths [list [file normalize [file dirname [info script]]/../
 
 create_project led_sys $out/led_sys -part $part -force
 set_property board_part digilentinc.com:arty-z7-20:part0:1.1 [current_project]
-add_files -norecurse $root/hdl/pl_blink.v
-add_files -fileset constrs_1 -norecurse $root/xdc/led.xdc
+add_files -norecurse [list "$root/hdl/pl_blink.v"]
+add_files -fileset constrs_1 -norecurse [list "$root/xdc/led.xdc"]
 update_compile_order -fileset sources_1
 
 create_bd_design sys
@@ -40,7 +40,7 @@ assign_bd_address
 validate_bd_design
 save_bd_design
 set wrapper [make_wrapper -files [get_files sys.bd] -top]
-add_files -norecurse $wrapper
+add_files -norecurse [list "$wrapper"]
 set_property top sys_wrapper [current_fileset]
 update_compile_order -fileset sources_1
 

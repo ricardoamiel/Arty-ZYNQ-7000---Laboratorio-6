@@ -18,8 +18,7 @@ set RootDIR [file dirname $TclPath]
 # Create Vivado project
 create_project $ProjectName $ProjectPath -part $PartDev -force
 
-add_files -fileset sim_1 -norecurse $RootDIR/common/tb_util.vh
-
+add_files -fileset sim_1 -norecurse [list "$RootDIR/common/tb_util.vh"]
 # Define testbench sources and waveform files based on the selected testbench
 if {$tb_name == "fir"} {
 
@@ -29,8 +28,8 @@ if {$tb_name == "fir"} {
 
     create_ip -name fir_compiler -vendor xilinx.com -library ip -version 7.2 -module_name fir_bandpass
     set_property -dict [list CONFIG.Component_Name {fir_bandpass} CONFIG.CoefficientSource {COE_File} CONFIG.Coefficient_File $RootDIR/ip_fir/coe/BPF.coe CONFIG.Sample_Frequency {100} CONFIG.DATA_Has_TLAST {Packet_Framing} CONFIG.M_DATA_Has_TREADY {true} CONFIG.Clock_Frequency {100} CONFIG.Has_ARESETn {true} CONFIG.Coefficient_Sets {1} CONFIG.Clock_Frequency {100} CONFIG.Coefficient_Sign {Signed} CONFIG.Quantization {Integer_Coefficients} CONFIG.Coefficient_Width {16} CONFIG.Coefficient_Fractional_Bits {0} CONFIG.Coefficient_Structure {Inferred} CONFIG.Data_Width {16} CONFIG.Output_Width {32} CONFIG.Filter_Architecture {Systolic_Multiply_Accumulate} CONFIG.ColumnConfig {16}] [get_ips fir_bandpass]
-    generate_target {instantiation_template} [get_files $ProjectPath/$ProjectName.srcs/sources_1/ip/fir_bandpass/fir_bandpass.xci]
-    generate_target all [get_files  $ProjectPath/$ProjectName.srcs/sources_1/ip/fir_bandpass/fir_bandpass.xci]
+    generate_target {instantiation_template} [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/fir_bandpass/fir_bandpass.xci"]]
+    generate_target all [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/fir_bandpass/fir_bandpass.xci"]]
 
     create_ip -name fir_compiler -vendor xilinx.com -library ip -version 7.2 -module_name fir_hilbert
     set_property -dict [list \
@@ -58,22 +57,22 @@ if {$tb_name == "fir"} {
       CONFIG.Sample_Frequency {100} \
       CONFIG.Zero_Pack_Factor {1} \
     ] [get_ips fir_hilbert]
-    generate_target {instantiation_template} [get_files $ProjectPath/$ProjectName.srcs/sources_1/ip/fir_hilbert/fir_hilbert.xci]
-    generate_target all [get_files  $ProjectPath/$ProjectName.srcs/sources_1/ip/fir_hilbert/fir_hilbert.xci]
+    generate_target {instantiation_template} [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/fir_hilbert/fir_hilbert.xci"]]
+    generate_target all [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/fir_hilbert/fir_hilbert.xci"]]
 
     create_ip -name fir_compiler -vendor xilinx.com -library ip -version 7.2 -module_name fir_decim
     set_property -dict [list CONFIG.Component_Name {fir_decim} CONFIG.CoefficientSource {COE_File} CONFIG.Coefficient_File $RootDIR/ip_fir/coe/LPF_dec.coe CONFIG.Filter_Type {Decimation} CONFIG.M_DATA_Has_TREADY {true} CONFIG.DATA_Has_TLAST {Packet_Framing} CONFIG.Decimation_Rate {4} CONFIG.Sample_Frequency {100} CONFIG.Clock_Frequency {100} CONFIG.Has_ARESETn {true} CONFIG.Coefficient_Sets {1} CONFIG.Interpolation_Rate {1} CONFIG.Zero_Pack_Factor {1} CONFIG.Number_Channels {1} CONFIG.RateSpecification {Frequency_Specification} CONFIG.Coefficient_Sign {Signed} CONFIG.Quantization {Integer_Coefficients} CONFIG.Coefficient_Width {16} CONFIG.Coefficient_Fractional_Bits {0} CONFIG.Coefficient_Structure {Inferred} CONFIG.Data_Width {16} CONFIG.Output_Width {32} CONFIG.Filter_Architecture {Systolic_Multiply_Accumulate} CONFIG.ColumnConfig {4}] [get_ips fir_decim]
-    generate_target {instantiation_template} [get_files $ProjectPath/$ProjectName.srcs/sources_1/ip/fir_decim/fir_decim.xci]
-    generate_target all [get_files  $ProjectPath/$ProjectName.srcs/sources_1/ip/fir_decim/fir_decim.xci]
+    generate_target {instantiation_template} [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/fir_decim/fir_decim.xci"]]
+    generate_target all [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/fir_decim/fir_decim.xci"]]
 
     create_ip -name fir_compiler -vendor xilinx.com -library ip -version 7.2 -module_name fir_inter
     set_property -dict [list CONFIG.Component_Name {fir_inter} CONFIG.CoefficientSource {COE_File} CONFIG.Coefficient_File $RootDIR/ip_fir/coe/LPF_int.coe CONFIG.Filter_Type {Interpolation} CONFIG.M_DATA_Has_TREADY {true} CONFIG.DATA_Has_TLAST {Packet_Framing} CONFIG.Interpolation_Rate {4} CONFIG.Sample_Frequency {25} CONFIG.Clock_Frequency {100} CONFIG.Has_ARESETn {true} CONFIG.Coefficient_Sets {1} CONFIG.Decimation_Rate {1} CONFIG.Zero_Pack_Factor {1} CONFIG.Number_Channels {1} CONFIG.RateSpecification {Frequency_Specification} CONFIG.Clock_Frequency {100} CONFIG.Coefficient_Sign {Signed} CONFIG.Quantization {Integer_Coefficients} CONFIG.Coefficient_Width {16} CONFIG.Coefficient_Fractional_Bits {0} CONFIG.Coefficient_Structure {Inferred} CONFIG.Data_Width {16} CONFIG.Output_Width {30} CONFIG.Filter_Architecture {Systolic_Multiply_Accumulate} CONFIG.ColumnConfig {4}] [get_ips fir_inter]
-    generate_target {instantiation_template} [get_files $ProjectPath/$ProjectName.srcs/sources_1/ip/fir_inter/fir_inter.xci]
-    generate_target all [get_files  $ProjectPath/$ProjectName.srcs/sources_1/ip/fir_inter/fir_inter.xci]
+    generate_target {instantiation_template} [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/fir_inter/fir_inter.xci"]]
+    generate_target all [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/fir_inter/fir_inter.xci"]]
 
     set_property SOURCE_SET sources_1 [get_filesets sim_1]
-    add_files -fileset sim_1 -norecurse $RootDIR/ip_fir/tb/fir_compiler_tb.v
-    add_files -fileset sim_1 -norecurse $RootDIR/ip_fir/tb/fir_compiler_tb_behav.wcfg
+    add_files -fileset sim_1 -norecurse [list "$RootDIR/ip_fir/tb/fir_compiler_tb.v"]
+    add_files -fileset sim_1 -norecurse [list "$RootDIR/ip_fir/tb/fir_compiler_tb_behav.wcfg"]
     set sim_wcfg "$RootDIR/ip_fir/tb/fir_compiler_tb_behav.wcfg"
     update_compile_order -fileset sources_1
     set_property top fir_compiler_tb [get_filesets sim_1]
@@ -102,7 +101,7 @@ if {$tb_name == "fir"} {
 	  CONFIG.S_PHASE_Has_TUSER {Not_Required} \
 	] [get_ips dds_compiler_0]
     update_compile_order -fileset sources_1
-    generate_target all [get_files  $ProjectPath/$ProjectName.srcs/sources_1/ip/dds_compiler_0/dds_compiler_0.xci]
+    generate_target all [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/dds_compiler_0/dds_compiler_0.xci"]]
 
     create_ip -name dds_compiler -vendor xilinx.com -library ip -version 6.0 -module_name dds_compiler_1
     set_property -dict [list \
@@ -123,12 +122,12 @@ if {$tb_name == "fir"} {
 	  CONFIG.S_PHASE_Has_TUSER {Not_Required} \
 	] [get_ips dds_compiler_1]
     update_compile_order -fileset sources_1
-    generate_target all [get_files  $ProjectPath/$ProjectName.srcs/sources_1/ip/dds_compiler_1/dds_compiler_1.xci]
+    generate_target all [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/dds_compiler_1/dds_compiler_1.xci"]]
 
     set_property SOURCE_SET sources_1 [get_filesets sim_1]
-    add_files -fileset sim_1 -norecurse $RootDIR/common/dds_axi_wrapper.v
-    add_files -fileset sim_1 -norecurse $RootDIR/ip_dds/tb/dds_compiler_tb.v
-    add_files -fileset sim_1 -norecurse $RootDIR/ip_dds/tb/dds_compiler_tb_behav.wcfg
+    add_files -fileset sim_1 -norecurse [list "$RootDIR/common/dds_axi_wrapper.v"]
+    add_files -fileset sim_1 -norecurse [list "$RootDIR/ip_dds/tb/dds_compiler_tb.v"]
+    add_files -fileset sim_1 -norecurse [list "$RootDIR/ip_dds/tb/dds_compiler_tb_behav.wcfg"]
     set sim_wcfg "$RootDIR/ip_dds/tb/dds_compiler_tb_behav.wcfg"
     update_compile_order -fileset sources_1
     set_property top dds_compiler_tb [get_filesets sim_1]
@@ -152,8 +151,8 @@ if {$tb_name == "fir"} {
       CONFIG.Quantization {Truncation} \
       CONFIG.SamplePeriod {1} \
     ] [get_ips cic_decim]
-    generate_target {instantiation_template} [get_files $ProjectPath/$ProjectName.srcs/sources_1/ip/cic_decim/cic_decim.xci]
-    generate_target all [get_files  $ProjectPath/$ProjectName.srcs/sources_1/ip/cic_decim/cic_decim.xci]
+    generate_target {instantiation_template} [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/cic_decim/cic_decim.xci"]]
+    generate_target all [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/cic_decim/cic_decim.xci"]]
 
     create_ip -name cic_compiler -vendor xilinx.com -library ip -version 4.0 -module_name cic_inter
     set_property -dict [list \
@@ -168,11 +167,11 @@ if {$tb_name == "fir"} {
       CONFIG.Quantization {Truncation} \
       CONFIG.SamplePeriod {16} \
     ] [get_ips cic_inter]
-    generate_target {instantiation_template} [get_files $ProjectPath/$ProjectName.srcs/sources_1/ip/cic_inter/cic_inter.xci]
-    generate_target all [get_files  $ProjectPath/$ProjectName.srcs/sources_1/ip/cic_inter/cic_inter.xci]
+    generate_target {instantiation_template} [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/cic_inter/cic_inter.xci"]]
+    generate_target all [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/cic_inter/cic_inter.xci"]]
     set_property SOURCE_SET sources_1 [get_filesets sim_1]
-    add_files -fileset sim_1 -norecurse $RootDIR/ip_cic/tb/cic_compiler_tb.v
-    add_files -fileset sim_1 -norecurse $RootDIR/ip_cic/tb/cic_compiler_tb_behav.wcfg
+    add_files -fileset sim_1 -norecurse [list "$RootDIR/ip_cic/tb/cic_compiler_tb.v"]
+    add_files -fileset sim_1 -norecurse [list "$RootDIR/ip_cic/tb/cic_compiler_tb_behav.wcfg"]
     set sim_wcfg "$RootDIR/ip_cic/tb/cic_compiler_tb_behav.wcfg"
     update_compile_order -fileset sources_1
     set_property top cic_compiler_tb [get_filesets sim_1]
@@ -184,20 +183,41 @@ if {$tb_name == "fir"} {
 
     create_ip -name xfft -vendor xilinx.com -library ip -version 9.1 -module_name xfft_0
     set_property -dict [list CONFIG.Component_Name {xfft_0} CONFIG.transform_length {2048} CONFIG.target_clock_frequency {100} CONFIG.implementation_options {pipelined_streaming_io} CONFIG.target_data_throughput {100} CONFIG.run_time_configurable_transform_length {true} CONFIG.input_width {16} CONFIG.phase_factor_width {24} CONFIG.aresetn {true} CONFIG.output_ordering {natural_order} CONFIG.number_of_stages_using_block_ram_for_data_and_phase_factors {4}] [get_ips xfft_0]
-    generate_target {instantiation_template} [get_files $ProjectPath/$ProjectName.srcs/sources_1/ip/xfft_0/xfft_0.xci]
-    generate_target all [get_files  $ProjectPath/$ProjectName.srcs/sources_1/ip/xfft_0/xfft_0.xci]
+    generate_target {instantiation_template} [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/xfft_0/xfft_0.xci"]]
+    generate_target all [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/xfft_0/xfft_0.xci"]]
 
     create_ip -name xfft -vendor xilinx.com -library ip -version 9.1 -module_name xfft_1
     set_property -dict [list CONFIG.Component_Name {xfft_1} CONFIG.transform_length {2048} CONFIG.target_clock_frequency {100} CONFIG.implementation_options {pipelined_streaming_io} CONFIG.target_data_throughput {100} CONFIG.run_time_configurable_transform_length {true} CONFIG.input_width {16} CONFIG.phase_factor_width {24} CONFIG.aresetn {true} CONFIG.output_ordering {natural_order} CONFIG.number_of_stages_using_block_ram_for_data_and_phase_factors {4}] [get_ips xfft_1]
-    generate_target {instantiation_template} [get_files $ProjectPath/$ProjectName.srcs/sources_1/ip/xfft_1/xfft_1.xci]
-    generate_target all [get_files  $ProjectPath/$ProjectName.srcs/sources_1/ip/xfft_1/xfft_1.xci]
+    generate_target {instantiation_template} [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/xfft_1/xfft_1.xci"]]
+    generate_target all [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/xfft_1/xfft_1.xci"]]
 
     set_property SOURCE_SET sources_1 [get_filesets sim_1]
-    add_files -fileset sim_1 -norecurse $RootDIR/ip_xfft/tb/xfft_tb.v
-    add_files -fileset sim_1 -norecurse $RootDIR/ip_xfft/tb/xfft_tb_behav.wcfg
+    add_files -fileset sim_1 -norecurse [list "$RootDIR/ip_xfft/tb/xfft_tb.v"]
+    add_files -fileset sim_1 -norecurse [list "$RootDIR/ip_xfft/tb/xfft_tb_behav.wcfg"]
     set sim_wcfg "$RootDIR/ip_xfft/tb/xfft_tb_behav.wcfg"
     update_compile_order -fileset sources_1
     set_property top xfft_tb [get_filesets sim_1]
+} elseif {$tb_name == "xfft_sq"} {
+    # Misma FFT que xfft, con la señal cuadrada que inyecta el ARM
+
+    #########################################################
+    #               FFT Compiler                            #
+    #########################################################
+
+    create_ip -name xfft -vendor xilinx.com -library ip -version 9.1 -module_name xfft_0
+    set_property -dict [list CONFIG.Component_Name {xfft_0} CONFIG.transform_length {2048} CONFIG.target_clock_frequency {100} CONFIG.implementation_options {pipelined_streaming_io} CONFIG.target_data_throughput {100} CONFIG.run_time_configurable_transform_length {true} CONFIG.input_width {16} CONFIG.phase_factor_width {24} CONFIG.aresetn {true} CONFIG.output_ordering {natural_order} CONFIG.number_of_stages_using_block_ram_for_data_and_phase_factors {4}] [get_ips xfft_0]
+    generate_target {instantiation_template} [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/xfft_0/xfft_0.xci"]]
+    generate_target all [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/xfft_0/xfft_0.xci"]]
+
+    create_ip -name xfft -vendor xilinx.com -library ip -version 9.1 -module_name xfft_1
+    set_property -dict [list CONFIG.Component_Name {xfft_1} CONFIG.transform_length {2048} CONFIG.target_clock_frequency {100} CONFIG.implementation_options {pipelined_streaming_io} CONFIG.target_data_throughput {100} CONFIG.run_time_configurable_transform_length {true} CONFIG.input_width {16} CONFIG.phase_factor_width {24} CONFIG.aresetn {true} CONFIG.output_ordering {natural_order} CONFIG.number_of_stages_using_block_ram_for_data_and_phase_factors {4}] [get_ips xfft_1]
+    generate_target {instantiation_template} [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/xfft_1/xfft_1.xci"]]
+    generate_target all [get_files [list "$ProjectPath/$ProjectName.srcs/sources_1/ip/xfft_1/xfft_1.xci"]]
+
+    set_property SOURCE_SET sources_1 [get_filesets sim_1]
+    add_files -fileset sim_1 -norecurse [list "$RootDIR/ip_xfft/tb/xfft_square_tb.v"]
+    update_compile_order -fileset sources_1
+    set_property top xfft_square_tb [get_filesets sim_1]
 } else {
     puts "Error: Invalid testbench specified!"
     exit
