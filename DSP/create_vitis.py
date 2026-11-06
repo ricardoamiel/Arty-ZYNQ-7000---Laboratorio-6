@@ -53,7 +53,8 @@ file_src = os.path.join(root_dir, "ip_" + ip)
 src_file = ip + "_main.c"
 
 app.import_files(from_loc=file_src, files=[src_file], dest_dir_in_cmp='src')
-app.set_app_config(key='USER_LINK_LIBRARIES', values='-lm')
+# Vitis 2025.2 antepone -l al nombre: se pasa 'm' (antes '-lm', que generaba -l-lm)
+app.set_app_config(key='USER_LINK_LIBRARIES', values='m')
 
 # Build the application component.
 app.build()

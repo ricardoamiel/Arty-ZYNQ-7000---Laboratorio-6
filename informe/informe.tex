@@ -291,7 +291,8 @@ Los diagramas se obtuvieron del volcado VCD de la simulación. Todas las interfa
 \figura{../DSP/resultados/diagrama_tiempo_general.pdf}{0.98}{Diagrama de tiempo completo: configuración del núcleo, trama de entrada de 2048 muestras, salida de la FFT y salida de la IFFT.}
 \figura{../DSP/resultados/diagrama_tiempo_inicio.pdf}{0.98}{Inicio de la trama de entrada: el núcleo mantiene tready en 1 y acepta una muestra por ciclo; el bus de datos alterna entre 16000 y menos 16000 cada 32 muestras.}
 \figura{../DSP/resultados/diagrama_tiempo_fin_trama.pdf}{0.98}{Fin de la trama de entrada: tlast se activa con la muestra 2048 y marca el fin de la trama.}
-\figura{../capturas/ondas_xfft_sq.png}{0.98}{Captura del visor de ondas de Vivado con la simulación de la señal cuadrada.}
+\figura{../capturas/ondas_xfft_sq_completo_panel.png}{0.98}{Visor de ondas de Vivado 2025.2 con la simulación completa: interfaz de configuración, salida de la FFT directa (partes real e imaginaria en formato analógico), salida de la FFT inversa y señal de entrada.}
+\figura{../capturas/ondas_xfft_sq_inicio_panel.png}{0.98}{Visor de ondas de Vivado ampliado al inicio: pulsos de configuración de la FFT (0x0D550B: 2048 puntos, dirección directa, escalamiento 0x6AA) y de la IFFT (0x00000B), y entrada que pasa de 0x3E80 (16000) a 0xC180 (menos 16000) tras 32 muestras.}
 
 \begin{table}[H]\centering
 \caption{Tiempos medidos en la simulación.}

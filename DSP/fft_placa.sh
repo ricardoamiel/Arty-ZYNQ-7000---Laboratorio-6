@@ -11,16 +11,21 @@ hw() {
   "$PY" auto/run_vivado.py xfft
   cp build/vivado/sys_wrapper.xsa build/vivado/sys_wrapper_xfft.xsa
 }
+# Vitis 2025.2 no acepta rutas con espacios al leer el .xsa: se compila en un workspace sin espacios
+BASE="${VITIS_BASE:-$HOME/.lab6_vitis}"
+W="$BASE/build/xfft"
 sw() {
-  W="$R/build/vitis_xfft"; rm -rf "$W"; mkdir -p "$W"
+  rm -rf "$BASE"; mkdir -p "$W" "$BASE/ip_xfft"
+  cp ip_xfft/xfft_main.c "$BASE/ip_xfft/"
   cp create_vitis.py "$W/"; cp build/vivado/sys_wrapper_xfft.xsa "$W/sys_wrapper.xsa"
-  ( cd "$W" && vitis -s create_vitis.py xfft | tee vitis_xfft.log )
-  find "$W" -name "app_xfft.elf" | grep -q . && echo "XFFT_SW_OK"
+  ( cd "$W" && vitis -s create_vitis.py xfft | tee "$R/build/vitis_xfft.log" )
+  ELF=$(find "$W" -name "app_xfft.elf" | head -1)
+  [ -n "$ELF" ] && mkdir -p build/elf && cp "$ELF" build/elf/ && echo "XFFT_SW_OK"
 }
 prog() {
-  W="$R/build/vitis_xfft"; H="$R/build/placa/hw"; mkdir -p "$H"
+  H="$R/build/placa/hw"; mkdir -p "$H"
   unzip -q -o build/vivado/sys_wrapper_xfft.xsa -d "$H"
-  ELF=$(find "$W" -name "app_xfft.elf" | head -1)
+  ELF="$R/build/elf/app_xfft.elf"
   xsdb tcl_placa_fft.tcl "$(ls "$H"/*.bit | head -1)" "$H/ps7_init.tcl" "$ELF" "$R/build/placa"
   "$PY" py/xfft_cuadrada.py placa
 }

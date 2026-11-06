@@ -19,9 +19,14 @@ hw() {
   grep -A3 "Total On-Chip Power" reportes/power.rpt || true
 }
 sw() {
-  rm -rf "$B/vitis"; mkdir -p "$B/vitis"; cp "$R/tcl/create_vitis_led.py" "$B/vitis/"
-  cd "$B/vitis"; vitis -s create_vitis_led.py | tee vitis_led.log
-  grep -q LED_SW_OK vitis_led.log
+  # Vitis 2025.2 no acepta rutas con espacios al leer el .xsa: si la ruta tiene espacios se usa ~/.lab6_vitis_led
+  V="$B/vitis"; case "$B" in *" "*) V="${VITIS_BASE_LED:-$HOME/.lab6_vitis_led}/build/vitis" ;; esac
+  rm -rf "$(dirname "$(dirname "$V")")/build" "$V"; mkdir -p "$V" "$(dirname "$V")/vivado" "$(dirname "$(dirname "$V")")/src"
+  cp "$B/vivado/sys_wrapper.xsa" "$(dirname "$V")/vivado/"; cp "$R/src/led_main.c" "$(dirname "$(dirname "$V")")/src/"
+  cp "$R/tcl/create_vitis_led.py" "$V/"
+  ( cd "$V" && vitis -s create_vitis_led.py | tee vitis_led.log )
+  grep -q LED_SW_OK "$V/vitis_led.log"
+  [ "$V" = "$B/vitis" ] || { rm -rf "$B/vitis"; ln -s "$V" "$B/vitis"; }
 }
 prog_pl() {
   vivado -nolog -nojournal -mode batch -source "$R/tcl/program_pl.tcl" -tclargs "$B/hw/sys_wrapper.bit"

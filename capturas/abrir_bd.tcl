@@ -4,6 +4,9 @@ set xpr  [lindex $argv 0]
 set out  [lindex $argv 1]
 open_project $xpr
 set bd [lindex [get_files -filter {FILE_TYPE == "Block Designs"}] 0]
+# La ventana se redimensiona desde fuera antes de dibujar, para que el zoom se ajuste al panel grande
+set f [open "${out}.esperando" w]; puts $f ok; close $f
+while {![file exists "${out}.seguir"]} { after 500 }
 open_bd_design $bd
 write_bd_layout -force -format svg -file "${out}.svg"
 set f [open "${out}.listo" w]; puts $f ok; close $f

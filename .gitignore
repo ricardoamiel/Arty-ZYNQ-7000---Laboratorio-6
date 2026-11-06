@@ -34,3 +34,9 @@ prompt-L6-grupal.txt
 
 # Capturas automáticas: marcadores temporales
 capturas/*.listo
+capturas/*.esperando
+capturas/*.seguir
+capturas/*.pasos
+capturas/*.comandos
+capturas/*.log
+capturas/ondas_run.txt
